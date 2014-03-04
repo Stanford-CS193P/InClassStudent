@@ -12,12 +12,15 @@
 
 @interface ICSViewController ()
 
-@property (nonatomic) CGFloat red;
-@property (nonatomic) CGFloat green;
-@property (nonatomic) CGFloat blue;
-
 @property (nonatomic, strong) NSMutableArray *labels;
 @property (nonatomic, strong) UILabel *currLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *level1;
+@property (weak, nonatomic) IBOutlet UIView *level2;
+@property (weak, nonatomic) IBOutlet UIView *level3;
+@property (weak, nonatomic) IBOutlet UIView *level4;
+@property (weak, nonatomic) IBOutlet UIView *level5;
+@property (nonatomic, strong) NSArray *levels;
 
 @end
 
@@ -25,10 +28,18 @@
 
 - (NSMutableArray *)labels
 {
-    if (_labels == nil) {
+    if (!_labels) {
         _labels = [[NSMutableArray alloc] init];
     }
     return _labels;
+}
+
+- (NSArray *)levels
+{
+    if (!_levels) {
+        _levels = @[self.level1, self.level2, self.level3, self.level4, self.level5];
+    }
+    return _levels;
 }
 
 - (void)viewDidLoad
@@ -73,45 +84,22 @@
 
 - (void)startMessageAnimation:(NSString *)message
 {
-    CGFloat x = self.view.bounds.origin.x + self.view.bounds.size.width;
-    CGFloat y = self.view.bounds.origin.y + self.view.bounds.size.height / 2;
-    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(x, y, 100, 100)];
-    label.text = message;
-    
+    UILabel *label = [[UILabel alloc] init];
+    NSDictionary *attributes = @{ NSForegroundColorAttributeName: [UIColor whiteColor],
+                                  NSFontAttributeName: [UIFont fontWithName:@"AvenirNext-Medium" size:20.0] };
+    NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:message
+                                                                                       attributes:attributes];
+    label.attributedText = attributedText;
     label.userInteractionEnabled = YES;
-//    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(labelPan:)];
-//    [panGesture setMinimumNumberOfTouches:1];
-//    [panGesture setMaximumNumberOfTouches:1];
-//    [label addGestureRecognizer:panGesture];
-    label.backgroundColor = [UIColor blueColor];
+    [label sizeToFit];
     
-//    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(labelTap)];
-//    [label addGestureRecognizer:tapGesture];
-    
-//    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(pressedLayer:)];
-//    [label addGestureRecognizer:tapGesture];
-    
-    
-    
-//    CALayer * movingLayer = [CALayer layer];
-//    [movingLayer setBounds: CGRectMake(0, 0, layerSize, layerSize)];
-//    [movingLayer setBackgroundColor:[UIColor orangeColor].CGColor];
-//    [movingLayer setPosition:CGPointMake(layerCenterInset, layerCenterInset)];
-//    [[[self view] layer] addSublayer:movingLayer];
-//    [self setMovingLayer:movingLayer];
-    
-//    CAKeyframeAnimation * moveLayerAnimation = [CAKeyframeAnimation animationWithKeyPath:@"position"];
-//    [moveLayerAnimation setValues:[NSArray arrayWithObjects:[NSValue valueWithCGPoint:CGPointMake(0, 100)], [NSValue valueWithCGPoint:CGPointMake(1000, 10)], nil]];
-//    [moveLayerAnimation setDuration:10.0];
-//    [moveLayerAnimation setRepeatCount:0];
-//    [moveLayerAnimation setTimingFunction: [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]];
-//    [label.layer addAnimation:moveLayerAnimation forKey:@"move"];
+    CGFloat x = self.view.bounds.origin.x + self.view.bounds.size.width;
+    CGFloat y = (self.view.bounds.origin.y + self.view.bounds.size.height / 2) - (label.frame.size.height / 2);
+    label.frame = CGRectMake(x, y, label.frame.size.width, label.frame.size.height);
     
     [self.view addSubview:label];
-        [self animateLabel:label];
-    
     [self.labels addObject:label];
-
+    [self animateLabel:label];
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -129,7 +117,6 @@
 {
     if (!self.currLabel) return;
     self.currLabel.center = CGPointMake(self.currLabel.center.x, position.y);
-    self.currLabel.backgroundColor = [UIColor redColor];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -137,9 +124,25 @@
     [self updateLabelPosition:[[touches anyObject] locationInView:self.view]];
 }
 
+- (void)snapLabelToNearestLevel:(UILabel *)label
+{
+    UIView *level = nil;
+    for (UIView *currLevel in self.levels) {
+        if (CGRectContainsPoint(currLevel.frame, label.center)) {
+            level = currLevel;
+            break;
+        }
+    }
+    if (!level) return;
+    
+    NSLog(@"level found");
+    label.frame = CGRectMake(label.frame.origin.x, level.frame.origin.y, label.frame.size.width, label.frame.size.height);
+}
+
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [self updateLabelPosition:[[touches anyObject] locationInView:self.view]];
+    [self snapLabelToNearestLevel:self.currLabel];
     self.currLabel = nil;
 }
 
