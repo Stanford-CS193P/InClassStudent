@@ -35,9 +35,9 @@
 {
     self = [super init];
     if (self) {
-        // TODO: does this work properly?
-        dispatch_queue_t queue = dispatch_queue_create("multipeer advertise queue", NULL);
-        dispatch_async(queue, ^{
+        // TODO: does this work properly on a different thread?
+//        dispatch_queue_t queue = dispatch_queue_create("multipeer advertise queue", NULL);
+//        dispatch_async(queue, ^{
             static NSString * const XXServiceType = @"InClass-service";
             self.localPeerID = [[MCPeerID alloc] initWithDisplayName:[[UIDevice currentDevice] name]];
             
@@ -47,7 +47,7 @@
             self.advertiser.delegate = self;
             [self.advertiser startAdvertisingPeer];
             NSLog(@"started advertiser");
-        });
+//        });
     }
     return self;
 }
@@ -56,15 +56,15 @@
        withContext:(NSData *)context invitationHandler:(void(^)(BOOL accept, MCSession *session))invitationHandler
 {
     // TODO: does this work properly?
-    dispatch_queue_t queue = dispatch_queue_create("accept invite queue", NULL);
-    dispatch_async(queue, ^{
+//    dispatch_queue_t queue = dispatch_queue_create("accept invite queue", NULL);
+//    dispatch_async(queue, ^{
         // Keep a strong reference to the session
         self.serverSession = [[MCSession alloc] initWithPeer:self.localPeerID
                                             securityIdentity:nil
                                         encryptionPreference:MCEncryptionNone];
         self.serverSession.delegate = self;
         invitationHandler(YES, self.serverSession);
-    });
+//    });
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
