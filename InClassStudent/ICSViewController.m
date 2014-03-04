@@ -22,6 +22,8 @@
 @property (weak, nonatomic) IBOutlet UIView *level5;
 @property (nonatomic, strong) NSArray *levels;
 
+@property (nonatomic) BOOL stopLevelAnimation;
+
 @end
 
 @implementation ICSViewController
@@ -61,7 +63,7 @@
             [[NSNotificationCenter defaultCenter] postNotificationName:kDataReceivedFromServerNotification
                                                                 object:self
                                                               userInfo:@{kServerPeerID: @"", kDataKey: data}];
-            [NSThread sleepForTimeInterval:2];
+            [NSThread sleepForTimeInterval:5];
         }
     });
 }
@@ -93,9 +95,15 @@
     label.userInteractionEnabled = YES;
     [label sizeToFit];
     
+    label.frame = CGRectMake(label.frame.origin.x, label.frame.origin.y,
+                             label.frame.size.width + 32, self.level1.frame.size.height);
+    label.textAlignment = NSTextAlignmentCenter;
+    label.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.05];
+    
     CGFloat x = self.view.bounds.origin.x + self.view.bounds.size.width;
     CGFloat y = (self.view.bounds.origin.y + self.view.bounds.size.height / 2) - (label.frame.size.height / 2);
     label.frame = CGRectMake(x, y, label.frame.size.width, label.frame.size.height);
+    NSLog(@"%@", NSStringFromCGRect(label.frame));
     
     [self.view addSubview:label];
     [self.labels addObject:label];
@@ -104,6 +112,11 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    for (UIView *label in self.levels) {
+        [label.layer removeAllAnimations];
+        self.stopLevelAnimation = YES;
+    }
+    
     UITouch *touch = [touches anyObject];
     CGPoint currentTouchPosition = [touch locationInView:self.view];
     for (UILabel *label in self.labels) {
@@ -113,10 +126,27 @@
     }
 }
 
+- (UIView *)nearestLevelToPoint:(CGPoint)point
+{
+    UIView *level = nil;
+    for (UIView *currLevel in self.levels) {
+        if (CGRectContainsPoint(currLevel.frame, point)) {
+            level = currLevel;
+            break;
+        }
+    }
+    return level;
+}
+
 - (void)updateLabelPosition:(CGPoint)position
 {
     if (!self.currLabel) return;
-    self.currLabel.center = CGPointMake(self.currLabel.center.x, position.y);
+    UIView *level = [self nearestLevelToPoint:position];
+    if (!level)
+        self.currLabel.center = CGPointMake(self.currLabel.center.x, position.y);
+    else
+        self.currLabel.center = CGPointMake(self.currLabel.center.x,
+                                            level.frame.origin.y + level.frame.size.height/2);
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -126,36 +156,91 @@
 
 - (void)snapLabelToNearestLevel:(UILabel *)label
 {
-    UIView *level = nil;
-    for (UIView *currLevel in self.levels) {
-        if (CGRectContainsPoint(currLevel.frame, label.center)) {
-            level = currLevel;
-            break;
-        }
-    }
+    if (!label) return;
+    CALayer *labelLayer = [label.layer presentationLayer];
+    CGPoint labelCenter = CGPointMake(labelLayer.frame.origin.x + labelLayer.frame.size.width / 2,
+                                      labelLayer.frame.origin.y + labelLayer.frame.size.height / 2);
+    UIView *level = [self nearestLevelToPoint:labelCenter];
     if (!level) return;
     
-    NSLog(@"level found");
-    label.frame = CGRectMake(label.frame.origin.x, level.frame.origin.y, label.frame.size.width, label.frame.size.height);
+    [UIView animateWithDuration:0.2 animations:^{
+        label.frame = CGRectMake(label.frame.origin.x,
+                                 level.frame.origin.y + level.frame.size.height/2 - label.frame.size.height/2,
+                                 label.frame.size.width,
+                                 label.frame.size.height);
+    }];
+    
+    [self animateLevel:level];
+}
+
+- (void)animateLevel:(UIView *)level
+{
+    UIColor *originalBGColor = level.backgroundColor;
+    
+    __block NSMutableArray* animationBlocks = [NSMutableArray new];
+    typedef void(^animationBlock)(BOOL);
+    
+    animationBlock (^getNextAnimation)() = ^{
+        if (self.stopLevelAnimation) {
+            NSLog(@"stopLevelAnimation");
+            self.stopLevelAnimation = NO;
+            animationBlock block = (animationBlock)[animationBlocks lastObject];
+            animationBlocks = nil;
+            return block;
+        }
+        
+        if ([animationBlocks count] > 0){
+            animationBlock block = (animationBlock)[animationBlocks objectAtIndex:0];
+            [animationBlocks removeObjectAtIndex:0];
+            return block;
+        } else {
+            return ^(BOOL finished){
+                animationBlocks = nil;
+            };
+        }
+    };
+    
+    void (^brighter)(BOOL) = ^(BOOL finished){
+        CGFloat hue, saturation, brightness, alpha;
+        if ([originalBGColor getHue:&hue saturation:&saturation brightness:&brightness alpha:&alpha]) {
+            UIColor *brighterColor = [UIColor colorWithHue:hue
+                                                saturation:MAX(saturation - 0.05, 0.0)
+                                                brightness:MIN(brightness + 0.075, 1.0)
+                                                     alpha:alpha];
+            
+            [UIView animateWithDuration:0.25
+                                  delay:0.0
+                                options:UIViewAnimationOptionCurveLinear|UIViewAnimationOptionAllowUserInteraction
+                             animations:^{
+                                 level.backgroundColor = brighterColor;
+                             } completion:getNextAnimation()];
+        }
+    };
+    
+    void (^darker)(BOOL) = ^(BOOL finished){
+        [UIView animateWithDuration:0.25
+                              delay:0.0
+                            options:UIViewAnimationOptionCurveLinear|UIViewAnimationOptionAllowUserInteraction
+                         animations:^{
+                             level.backgroundColor = originalBGColor;
+                         } completion:getNextAnimation()];
+    };
+    
+    [animationBlocks addObject:brighter];
+    [animationBlocks addObject:darker];
+    [animationBlocks addObject:brighter];
+    [animationBlocks addObject:darker];
+    
+    if (self.stopLevelAnimation) self.stopLevelAnimation = NO;
+    getNextAnimation()(YES);
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [self updateLabelPosition:[[touches anyObject] locationInView:self.view]];
-    [self snapLabelToNearestLevel:self.currLabel];
+    UILabel *label = self.currLabel;
     self.currLabel = nil;
-}
-
-- (IBAction)pressedLayer:(UIGestureRecognizer *)sender {
-    NSLog(@"pressedLayer");
-    CGPoint touchPoint = [sender locationInView:[self view]];
-    
-    if ([[sender.view.layer presentationLayer] hitTest:touchPoint]) {
-        sender.view.backgroundColor = [UIColor yellowColor];
-    }
-    else if ([sender.view.layer hitTest:touchPoint]) {
-        sender.view.backgroundColor = [UIColor redColor];
-    }
+    [self snapLabelToNearestLevel:label];
 }
 
 - (void)animateLabel:(UILabel *)label
@@ -165,27 +250,9 @@
                         options:(UIViewAnimationOptionCurveLinear|
                                  UIViewAnimationOptionAllowUserInteraction)
                      animations:^{
-                         label.transform = CGAffineTransformMakeTranslation(-1 * self.view.bounds.size.width - 100, 0);
+                         label.transform = CGAffineTransformMakeTranslation(-1 * self.view.bounds.size.width - label.frame.size.width, 0);
                      }  completion:^(BOOL finished) {
                      }];
-}
-
-- (void)labelTap {
-    NSLog(@"labelTap");
-}
-
-- (void)labelPan:(UIPanGestureRecognizer *)sender
-{
-    NSLog(@"labelPan");
-    [self.view bringSubviewToFront:sender.view];
-    CGPoint newCenter = [sender locationInView:sender.view.superview];
-    sender.view.center = CGPointMake(sender.view.center.x, newCenter.y);
-}
-
-- (void)didReceiveMemoryWarning
-{
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
 }
 
 //- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
