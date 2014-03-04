@@ -23,6 +23,7 @@
 		9F4A226418BF00FE00EA90A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A224318BF00FE00EA90A8 /* UIKit.framework */; };
 		9F4A226C18BF00FE00EA90A8 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 9F4A226A18BF00FE00EA90A8 /* InfoPlist.strings */; };
 		9F4A226E18BF00FE00EA90A8 /* InClassStudentTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F4A226D18BF00FE00EA90A8 /* InClassStudentTests.m */; };
+		9F6A726118C594D200DF00FE /* ICSMultipeerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F6A726018C594D200DF00FE /* ICSMultipeerManager.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,8 @@
 		9F4A226918BF00FE00EA90A8 /* InClassStudentTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "InClassStudentTests-Info.plist"; sourceTree = "<group>"; };
 		9F4A226B18BF00FE00EA90A8 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		9F4A226D18BF00FE00EA90A8 /* InClassStudentTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = InClassStudentTests.m; sourceTree = "<group>"; };
+		9F6A725F18C594D200DF00FE /* ICSMultipeerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICSMultipeerManager.h; sourceTree = "<group>"; };
+		9F6A726018C594D200DF00FE /* ICSMultipeerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICSMultipeerManager.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +127,8 @@
 				9F4A225418BF00FE00EA90A8 /* Main_iPad.storyboard */,
 				9F4A225718BF00FE00EA90A8 /* ICSViewController.h */,
 				9F4A225818BF00FE00EA90A8 /* ICSViewController.m */,
+				9F6A725F18C594D200DF00FE /* ICSMultipeerManager.h */,
+				9F6A726018C594D200DF00FE /* ICSMultipeerManager.m */,
 				9F4A225A18BF00FE00EA90A8 /* Images.xcassets */,
 				9F4A224618BF00FE00EA90A8 /* Supporting Files */,
 			);
@@ -259,6 +264,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F4A225918BF00FE00EA90A8 /* ICSViewController.m in Sources */,
+				9F6A726118C594D200DF00FE /* ICSMultipeerManager.m in Sources */,
 				9F4A225018BF00FE00EA90A8 /* AppDelegate.m in Sources */,
 				9F4A224C18BF00FE00EA90A8 /* main.m in Sources */,
 			);

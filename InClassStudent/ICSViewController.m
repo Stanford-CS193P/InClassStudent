@@ -7,15 +7,10 @@
 //
 
 #import "ICSViewController.h"
-#import <MultipeerConnectivity/MultipeerConnectivity.h>
+#import "ICSMultipeerManager.h"
 
 
-@interface ICSViewController ()<MCNearbyServiceAdvertiserDelegate, MCSessionDelegate>
-
-@property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
-@property (nonatomic, strong) MCPeerID *localPeerID;
-@property (nonatomic, strong) MCPeerID *serverPeerID;
-@property (nonatomic, strong) MCSession *currSession;
+@interface ICSViewController ()
 
 @property (nonatomic) CGFloat red;
 @property (nonatomic) CGFloat green;
@@ -25,61 +20,21 @@
 
 @implementation ICSViewController
 
-- (void)session:(MCSession *)session didStartReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID withProgress:(NSProgress *)progress
-{
-    NSLog(@"didStartReceivingResourceWithName");
-}
-
-- (void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID
-{
-    NSLog(@"didReceiveStream");
-}
-
-- (void)session:(MCSession *)session didFinishReceivingResourceWithName:(NSString *)resourceName fromPeer:(MCPeerID *)peerID atURL:(NSURL *)localURL withError:(NSError *)error
-{
-    
-}
-
-static NSString * const XXServiceType = @"InClass-service";
-
-
--(void)viewDidLoad
+- (void)viewDidLoad
 {
     [super viewDidLoad];
     
-    self.localPeerID = [[MCPeerID alloc] initWithDisplayName:[[UIDevice currentDevice] name]];
-    self.advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:self.localPeerID
-                                                        discoveryInfo:nil
-                                                          serviceType:XXServiceType];
-    self.advertiser.delegate = self;
-    [self.advertiser startAdvertisingPeer];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didReceiveData:)
+                                                 name:kDataReceivedFromServerNotification
+                                               object:nil];
 }
 
-- (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser
-didReceiveInvitationFromPeer:(MCPeerID *)peerID
-       withContext:(NSData *)context
- invitationHandler:(void(^)(BOOL accept, MCSession *session))invitationHandler
+- (void)didReceiveData:(NSNotification *)notification
 {
-    NSLog(@"Got invited");
-    self.currSession = [[MCSession alloc] initWithPeer:self.localPeerID
-                                        securityIdentity:nil
-                                    encryptionPreference:MCEncryptionNone];
-    self.currSession.delegate = self;
-    invitationHandler(YES, self.currSession);
-}
-
-- (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
-{
-    NSString *message = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"%@\n%@", peerID, message );
-}
-
-- (void)session:(MCSession *)session peer:(MCPeerID *)peerID didChangeState:(MCSessionState)state
-{
-    NSLog(@"didChangeState %ld", state);
-    if (state ==  MCSessionStateConnected) {
-        self.serverPeerID = peerID;
-    }
+    NSData *data = [[notification userInfo] valueForKey:kDataKey];
+    NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    NSLog(@"%@", dataStr);
 }
 
 - (void)didReceiveMemoryWarning
@@ -110,13 +65,8 @@ didReceiveInvitationFromPeer:(MCPeerID *)peerID
     NSString *message = [NSString stringWithFormat:@"%f,%f,%f", self.red, self.green, self.blue];
     NSLog(@"Sending message: %@", message);
     NSData *data = [message dataUsingEncoding:NSUTF8StringEncoding];
-    NSError *error = nil;
-    if (self.currSession && ![self.currSession sendData:data
-                            toPeers:@[self.serverPeerID]
-                           withMode:MCSessionSendDataReliable
-                              error:&error]) {
-        NSLog(@"[Error] %@", error);
-    }
+    ICSMultipeerManager *manager = [ICSMultipeerManager sharedManager];
+    [manager sendData:data];
 }
 
 @end
