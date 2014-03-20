@@ -17,10 +17,13 @@
 @property (nonatomic, strong) MCPeerID *serverPeerID;
 @property (nonatomic) BOOL serverIsConnected;
 @property (nonatomic, strong) MCSession *session;
+@property (nonatomic, strong) NSStream *stream;
 
 @end
 
 @implementation ICSMultipeerManager
+
+static NSString * const XXServiceType = @"InClass-service";
 
 + (id)sharedManager
 {
@@ -37,19 +40,37 @@
 {
     self = [super init];
     if (self) {
-        static NSString * const XXServiceType = @"InClass-service";
-        self.localPeerID = [[MCPeerID alloc] initWithDisplayName:[[UIDevice currentDevice] name]];
-        
-        self.session = [[MCSession alloc] initWithPeer:self.localPeerID];
-        self.session.delegate = self;
-        
-        self.advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:self.localPeerID
-                                                            discoveryInfo:nil
-                                                              serviceType:XXServiceType];
-        self.advertiser.delegate = self;
-        [self.advertiser startAdvertisingPeer];
+        [self connect];
     }
     return self;
+}
+
+- (MCPeerID *)localPeerID
+{
+    if (!_localPeerID) {
+        _localPeerID = [[MCPeerID alloc] initWithDisplayName:[[UIDevice currentDevice] name]];
+    }
+    return _localPeerID;
+}
+
+- (MCNearbyServiceAdvertiser *)advertiser
+{
+    if (!_advertiser) {
+        _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:self.localPeerID
+                                                        discoveryInfo:nil
+                                                          serviceType:XXServiceType];
+        _advertiser.delegate = self;
+    }
+    return _advertiser;
+}
+
+- (MCSession *)session
+{
+    if (!_session) {
+        _session = [[MCSession alloc] initWithPeer:self.localPeerID];
+        _session.delegate = self;
+    }
+    return _session;
 }
 
 - (void)setServerIsConnected:(BOOL)serverIsConnected
@@ -121,10 +142,10 @@
        fromPeer:(MCPeerID *)peerID
 {
     assert(peerID == self.serverPeerID);
-    
-    stream.delegate = self;
-    [stream scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
-    [stream open];
+    self.stream = stream;
+    self.stream.delegate = self;
+    [self.stream scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    [self.stream open];
 }
 
 #define kBufSize 128
@@ -164,6 +185,27 @@
     } else if (streamEvent == NSStreamEventOpenCompleted) {
         NSLog(@"NSStreamEventOpenCompleted");
     }
+}
+
+- (void)connect
+{
+    NSLog(@"advertising self...");
+    
+    [self.advertiser startAdvertisingPeer];
+}
+
+- (void)disconnect
+{
+    NSLog(@"disconnecting self...");
+    
+    [self.stream removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+    [self.stream close];
+    self.stream.delegate = nil;
+    
+    self.session = nil;
+    self.serverPeerID = nil;
+    self.advertiser = nil;
+    self.serverIsConnected = NO;
 }
 
 #pragma mark - Unused Delegate Methods
