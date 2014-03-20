@@ -18,7 +18,7 @@
 // Returns the singleton instance
 + (id)sharedManager;
 
-- (void)sendData:(NSData *)data;
+- (void)sendDict:(NSDictionary *)dict;
 - (void)connect;
 - (void)disconnect;
 

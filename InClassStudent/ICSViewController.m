@@ -65,20 +65,6 @@
                                              selector:@selector(serverDidConnect)
                                                  name:kServerConnected
                                                object:nil];
-    
-    
-    
-    
-//    dispatch_queue_t queue = dispatch_queue_create("simulate word messages", NULL);
-//    dispatch_async(queue, ^{
-//        while (YES) {
-//            NSData *data = [@"hello there" dataUsingEncoding:NSUTF8StringEncoding];
-//            [[NSNotificationCenter defaultCenter] postNotificationName:kDataReceivedFromServerNotification
-//                                                                object:self
-//                                                              userInfo:@{kServerPeerID: @"", kDataKey: data}];
-//            [NSThread sleepForTimeInterval:5];
-//        }
-//    });
 }
 
 - (void)serverDidDisconnect
@@ -171,10 +157,13 @@
     return level;
 }
 
-- (int)nearestLevelValueToPoint:(CGPoint)point
+// TODO: better way...this is gross...
+- (int)nearestLevelValueToLabel:(UILabel *)label
 {
-    UIView *level = [self nearestLevelToPoint:point];
-    return [self.levels indexOfObject:level];
+    CALayer *labelLayer = [label.layer presentationLayer];
+    CGPoint labelCenter = CGPointMake(0, labelLayer.frame.origin.y + labelLayer.frame.size.height / 2);
+    UIView *level = [self nearestLevelToPoint:labelCenter];
+    return (int)[self.levels indexOfObject:level];
 }
 
 - (void)updateLabelPosition:(CGPoint)position
@@ -293,7 +282,11 @@
                      animations:^{
                          label.transform = CGAffineTransformMakeTranslation(-1 * self.view.bounds.size.width - label.frame.size.width, 0);
                      }  completion:^(BOOL finished) {
-                         NSLog(@"Animation complete");
+                         // TODO: queue up responses in case of network failure
+                         int rating = [self nearestLevelValueToLabel:label];
+                         [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"PeerRating",
+                                                                         @"text": label.text,
+                                                                         @"rating": @(rating)}];
                      }];
 }
 

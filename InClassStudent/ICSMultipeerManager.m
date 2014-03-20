@@ -9,7 +9,7 @@
 #import "ICSMultipeerManager.h"
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 
-@interface ICSMultipeerManager()<MCNearbyServiceAdvertiserDelegate, MCSessionDelegate, NSStreamDelegate>
+@interface ICSMultipeerManager()<MCNearbyServiceAdvertiserDelegate, MCSessionDelegate>
 
 @property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
 @property (nonatomic, strong) MCPeerID *localPeerID;
@@ -17,7 +17,6 @@
 @property (nonatomic, strong) MCPeerID *serverPeerID;
 @property (nonatomic) BOOL serverIsConnected;
 @property (nonatomic, strong) MCSession *session;
-@property (nonatomic, strong) NSStream *stream;
 
 @end
 
@@ -119,11 +118,6 @@ static NSString * const XXServiceType = @"InClass-service";
             NSLog(@"Server disconnected");
             self.serverPeerID = nil;
             self.serverIsConnected = NO;
-            
-            [self.stream removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
-            [self.stream close];
-            self.stream.delegate = nil;
-            self.stream = nil;
             [self.session disconnect];
             self.session = nil;
         }
@@ -132,11 +126,23 @@ static NSString * const XXServiceType = @"InClass-service";
     }
 }
 
-- (void)sendData:(NSData *)data
+- (void)sendDict:(NSDictionary *)dict
 {
+    NSLog(@"====> Sending data");
+    
     if (!self.session) return;
     if (!self.serverPeerID) return;
     if (!self.serverIsConnected) return;
+    
+    // Append bookkeeping fields
+    NSMutableDictionary *dictMod = [[NSMutableDictionary alloc] initWithDictionary:dict];
+    [dictMod setObject:[NSDate date] forKey:@"time"];
+    [dictMod setObject:[[NSUUID UUID] UUIDString] forKey:@"uuid"];
+    [dictMod setObject:self.localPeerID.displayName forKey:@"peerIDDisplayName"];
+
+    NSLog(@"sendDict %@", dictMod);
+    
+    NSData* data = [NSKeyedArchiver archivedDataWithRootObject:dictMod];
     
     NSError *error = nil;
     BOOL result = [self.session sendData:data
@@ -146,53 +152,17 @@ static NSString * const XXServiceType = @"InClass-service";
     if (!result) NSLog(@"[Error] %@", error);
 }
 
-- (void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName
-       fromPeer:(MCPeerID *)peerID
+- (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
 {
     assert(peerID == self.serverPeerID);
-    self.stream = stream;
-    self.stream.delegate = self;
-    [self.stream scheduleInRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
-    [self.stream open];
-}
-
-#define kBufSize 128
-
-- (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)streamEvent
-{
-    // TODO: handle stream errors
-    // TODO: Disposing of the Stream Object
     
-    if (streamEvent == NSStreamEventHasBytesAvailable) {
-        NSLog(@"NSStreamEventHasBytesAvailable");
-        
-        NSInputStream *inStream = (NSInputStream *)stream;
-        NSMutableData *data = [[NSMutableData alloc] init];
-
-        while ([inStream hasBytesAvailable]) {
-            uint8_t buf[kBufSize]; // TODO: reuse same buffer?
-            NSInteger len = [inStream read:buf maxLength:kBufSize];
-            NSLog(@"num bytes read from stream: %d", len);
-            if (len <= 0) break;
-            
-            [data appendBytes:(const void *)buf length:len];
-        }
-        if ([data length]) {
-            [[NSNotificationCenter defaultCenter] postNotificationName:kDataReceivedFromServerNotification
-                                                                object:self
-                                                              userInfo:@{kDataKey: data}];
-        }
-    } else if (streamEvent == NSStreamEventErrorOccurred) {
-        NSLog(@"NSStreamEventErrorOccurred");
-    } else if (streamEvent == NSStreamEventEndEncountered) {
-        NSLog(@"NSStreamEventEndEncountered");
-    } else if (streamEvent == NSStreamEventNone) {
-        NSLog(@"NSStreamEventNone");
-    } else if (streamEvent == NSStreamEventHasSpaceAvailable) {
-        NSLog(@"NSStreamEventHasSpaceAvailable");
-    } else if (streamEvent == NSStreamEventOpenCompleted) {
-        NSLog(@"NSStreamEventOpenCompleted");
-    }
+    NSString *message = [[NSString alloc] initWithData:data
+                                              encoding:NSUTF8StringEncoding];
+    NSLog(@"didReceiveData from peer %@", message);
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kDataReceivedFromServerNotification
+                                                        object:self
+                                                      userInfo:@{kDataKey: data}];
 }
 
 - (void)connect
@@ -206,11 +176,6 @@ static NSString * const XXServiceType = @"InClass-service";
 {
     NSLog(@"disconnecting self...");
     
-    [self.stream removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
-    [self.stream close];
-    self.stream.delegate = nil;
-    self.stream = nil;
-    
     [self.session disconnect];
     self.session = nil;
     
@@ -221,7 +186,7 @@ static NSString * const XXServiceType = @"InClass-service";
 
 #pragma mark - Unused Delegate Methods
 
-- (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID { }
+- (void)session:(MCSession *)session didReceiveStream:(NSInputStream *)stream withName:(NSString *)streamName fromPeer:(MCPeerID *)peerID { }
 
 - (void)session:(MCSession *)session didStartReceivingResourceWithName:(NSString *)resourceName
        fromPeer:(MCPeerID *)peerID withProgress:(NSProgress *)progress { }
