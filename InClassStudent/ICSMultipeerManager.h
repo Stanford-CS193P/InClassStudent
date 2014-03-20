@@ -11,7 +11,8 @@
 @interface ICSMultipeerManager : NSObject
 
 #define kDataReceivedFromServerNotification @"DataReceivedFromServer"
-#define kServerPeerID @"ServerPeerID"
+#define kServerDisconnected @"ServerDisconnected"
+#define kServerConnected @"ServerConnected"
 #define kDataKey @"Data"
 
 // Returns the singleton instance

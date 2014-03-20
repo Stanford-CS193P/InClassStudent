@@ -21,6 +21,7 @@
 @property (weak, nonatomic) IBOutlet UIView *level4;
 @property (weak, nonatomic) IBOutlet UIView *level5;
 @property (nonatomic, strong) NSArray *levels;
+@property (weak, nonatomic) IBOutlet UIImageView *connectedIndicator;
 
 @property (nonatomic) BOOL stopLevelAnimation;
 
@@ -55,16 +56,42 @@
                                                  name:kDataReceivedFromServerNotification
                                                object:nil];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(serverDidDisconnect)
+                                                 name:kServerDisconnected
+                                               object:nil];
     
-    dispatch_queue_t queue = dispatch_queue_create("simulate word messages", NULL);
-    dispatch_async(queue, ^{
-        while (YES) {
-            NSData *data = [@"hello there" dataUsingEncoding:NSUTF8StringEncoding];
-            [[NSNotificationCenter defaultCenter] postNotificationName:kDataReceivedFromServerNotification
-                                                                object:self
-                                                              userInfo:@{kServerPeerID: @"", kDataKey: data}];
-            [NSThread sleepForTimeInterval:5];
-        }
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(serverDidConnect)
+                                                 name:kServerConnected
+                                               object:nil];
+    
+    
+    
+    
+//    dispatch_queue_t queue = dispatch_queue_create("simulate word messages", NULL);
+//    dispatch_async(queue, ^{
+//        while (YES) {
+//            NSData *data = [@"hello there" dataUsingEncoding:NSUTF8StringEncoding];
+//            [[NSNotificationCenter defaultCenter] postNotificationName:kDataReceivedFromServerNotification
+//                                                                object:self
+//                                                              userInfo:@{kServerPeerID: @"", kDataKey: data}];
+//            [NSThread sleepForTimeInterval:5];
+//        }
+//    });
+}
+
+- (void)serverDidDisconnect
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.connectedIndicator.hidden = YES;
+    });
+}
+
+- (void)serverDidConnect
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.connectedIndicator.hidden = NO;
     });
 }
 
@@ -76,19 +103,26 @@
     assert([name isEqualToString:kDataReceivedFromServerNotification]);
     
     NSData *data = [[notification userInfo] valueForKey:kDataKey];
+    if (data == nil) return;
     NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"%@", dataStr);
+    NSLog(@"dataStr %@", dataStr);
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self startMessageAnimation:dataStr];
     });
 }
 
+#define FONT_SIZE 20.0
+#define FONT_NAME @"AvenirNext-Medium"
+#define LABEL_PADDING 32
+
 - (void)startMessageAnimation:(NSString *)message
 {
+    if (!message) return;
+    
     UILabel *label = [[UILabel alloc] init];
     NSDictionary *attributes = @{ NSForegroundColorAttributeName: [UIColor whiteColor],
-                                  NSFontAttributeName: [UIFont fontWithName:@"AvenirNext-Medium" size:20.0] };
+                                  NSFontAttributeName: [UIFont fontWithName:FONT_NAME size:FONT_SIZE] };
     NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:message
                                                                                        attributes:attributes];
     label.attributedText = attributedText;
@@ -96,14 +130,13 @@
     [label sizeToFit];
     
     label.frame = CGRectMake(label.frame.origin.x, label.frame.origin.y,
-                             label.frame.size.width + 32, self.level1.frame.size.height);
+                             label.frame.size.width + LABEL_PADDING, self.level1.frame.size.height);
     label.textAlignment = NSTextAlignmentCenter;
     label.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.05];
     
     CGFloat x = self.view.bounds.origin.x + self.view.bounds.size.width;
     CGFloat y = (self.view.bounds.origin.y + self.view.bounds.size.height / 2) - (label.frame.size.height / 2);
     label.frame = CGRectMake(x, y, label.frame.size.width, label.frame.size.height);
-    NSLog(@"%@", NSStringFromCGRect(label.frame));
     
     [self.view addSubview:label];
     [self.labels addObject:label];
@@ -138,15 +171,23 @@
     return level;
 }
 
+- (int)nearestLevelValueToPoint:(CGPoint)point
+{
+    UIView *level = [self nearestLevelToPoint:point];
+    return [self.levels indexOfObject:level];
+}
+
 - (void)updateLabelPosition:(CGPoint)position
 {
     if (!self.currLabel) return;
+    
     UIView *level = [self nearestLevelToPoint:position];
-    if (!level)
+    if (!level) {
         self.currLabel.center = CGPointMake(self.currLabel.center.x, position.y);
-    else
+    } else {
         self.currLabel.center = CGPointMake(self.currLabel.center.x,
                                             level.frame.origin.y + level.frame.size.height/2);
+    }
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -252,33 +293,12 @@
                      animations:^{
                          label.transform = CGAffineTransformMakeTranslation(-1 * self.view.bounds.size.width - label.frame.size.width, 0);
                      }  completion:^(BOOL finished) {
+                         NSLog(@"Animation complete");
                      }];
 }
 
-//- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-//    UITouch *aTouch = [touches anyObject];
-//    CGPoint currentTouchPosition = [aTouch locationInView:self.view];
-//    
-//    CGFloat yLoc = currentTouchPosition.y;
-//    CGFloat yMid = self.view.center.y;
-//    CGFloat per = (yLoc - yMid) / yMid;
-//    
-//    CGFloat red = 0.5 + per;
-//    CGFloat green = 0.5 - per;
-//    self.view.backgroundColor = [UIColor colorWithRed:red green:green blue:0 alpha:1];
-//    
-//    self.red = red;
-//    self.green = green;
-//    self.blue = 0;
-//}
-//
-//- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-//{
-//    NSString *message = [NSString stringWithFormat:@"%f,%f,%f", self.red, self.green, self.blue];
-//    NSLog(@"Sending message: %@", message);
-//    NSData *data = [message dataUsingEncoding:NSUTF8StringEncoding];
-//    ICSMultipeerManager *manager = [ICSMultipeerManager sharedManager];
-//    [manager sendData:data];
-//}
+- (void)sendRatingToTeacher {
+
+}
 
 @end
