@@ -127,7 +127,8 @@
     [stream open];
 }
 
-#define kBufSize 1024
+#define kBufSize 128
+
 - (void)stream:(NSStream *)stream handleEvent:(NSStreamEvent)streamEvent
 {
     // TODO: handle stream errors
@@ -137,7 +138,6 @@
         NSLog(@"NSStreamEventHasBytesAvailable");
         
         NSInputStream *inStream = (NSInputStream *)stream;
-        
         NSMutableData *data = [[NSMutableData alloc] init];
 
         while ([inStream hasBytesAvailable]) {
@@ -148,13 +148,11 @@
             
             [data appendBytes:(const void *)buf length:len];
         }
-        
-        NSString* str = [NSString stringWithUTF8String:[data bytes]];
-        NSLog(@"DATA: %@", str);
-        
-        [[NSNotificationCenter defaultCenter] postNotificationName:kDataReceivedFromServerNotification
-                                                            object:self
-                                                          userInfo:@{kDataKey: data}];
+        if ([data length]) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:kDataReceivedFromServerNotification
+                                                                object:self
+                                                              userInfo:@{kDataKey: data}];
+        }
     } else if (streamEvent == NSStreamEventErrorOccurred) {
         NSLog(@"NSStreamEventErrorOccurred");
     } else if (streamEvent == NSStreamEventEndEncountered) {
