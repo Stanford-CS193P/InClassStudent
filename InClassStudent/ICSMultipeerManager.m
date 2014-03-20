@@ -134,11 +134,15 @@
     // TODO: Disposing of the Stream Object
     
     if (streamEvent == NSStreamEventHasBytesAvailable) {
+        NSLog(@"NSStreamEventHasBytesAvailable");
+        
+        NSInputStream *inStream = (NSInputStream *)stream;
+        
         NSMutableData *data = [[NSMutableData alloc] init];
 
-        while ([(NSInputStream *)stream hasBytesAvailable] ) {
+        while ([inStream hasBytesAvailable]) {
             uint8_t buf[kBufSize]; // TODO: reuse same buffer?
-            NSInteger len = [(NSInputStream *)stream read:buf maxLength:kBufSize];
+            NSInteger len = [inStream read:buf maxLength:kBufSize];
             NSLog(@"num bytes read from stream: %d", len);
             if (len <= 0) break;
             
@@ -151,6 +155,16 @@
         [[NSNotificationCenter defaultCenter] postNotificationName:kDataReceivedFromServerNotification
                                                             object:self
                                                           userInfo:@{kDataKey: data}];
+    } else if (streamEvent == NSStreamEventErrorOccurred) {
+        NSLog(@"NSStreamEventErrorOccurred");
+    } else if (streamEvent == NSStreamEventEndEncountered) {
+        NSLog(@"NSStreamEventEndEncountered");
+    } else if (streamEvent == NSStreamEventNone) {
+        NSLog(@"NSStreamEventNone");
+    } else if (streamEvent == NSStreamEventHasSpaceAvailable) {
+        NSLog(@"NSStreamEventHasSpaceAvailable");
+    } else if (streamEvent == NSStreamEventOpenCompleted) {
+        NSLog(@"NSStreamEventOpenCompleted");
     }
 }
 

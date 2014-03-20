@@ -105,7 +105,6 @@
     NSData *data = [[notification userInfo] valueForKey:kDataKey];
     if (data == nil) return;
     NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"dataStr %@", dataStr);
     
     dispatch_async(dispatch_get_main_queue(), ^{
         [self startMessageAnimation:dataStr];
