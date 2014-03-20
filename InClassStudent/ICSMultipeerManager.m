@@ -116,8 +116,16 @@ static NSString * const XXServiceType = @"InClass-service";
     } else if (state == MCSessionStateNotConnected) {
         NSLog(@"MCSessionStateNotConnected %@", peerID.displayName);
         if (peerID == self.serverPeerID) {
+            NSLog(@"Server disconnected");
             self.serverPeerID = nil;
             self.serverIsConnected = NO;
+            
+            [self.stream removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
+            [self.stream close];
+            self.stream.delegate = nil;
+            self.stream = nil;
+            [self.session disconnect];
+            self.session = nil;
         }
     } else if (state == MCSessionStateConnecting) {
         NSLog(@"MCSessionStateConnecting %@", peerID.displayName);
@@ -201,8 +209,11 @@ static NSString * const XXServiceType = @"InClass-service";
     [self.stream removeFromRunLoop:[NSRunLoop mainRunLoop] forMode:NSDefaultRunLoopMode];
     [self.stream close];
     self.stream.delegate = nil;
+    self.stream = nil;
     
+    [self.session disconnect];
     self.session = nil;
+    
     self.serverPeerID = nil;
     self.advertiser = nil;
     self.serverIsConnected = NO;
