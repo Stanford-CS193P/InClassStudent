@@ -14,6 +14,8 @@
 
 @property (nonatomic, strong) NSMutableArray *labels;
 @property (nonatomic, strong) UILabel *currLabel;
+@property (nonatomic, weak) UILabel *movingLabel;
+@property (nonatomic, strong) NSMutableArray *labelRatings;
 
 @property (weak, nonatomic) IBOutlet UIView *level1;
 @property (weak, nonatomic) IBOutlet UIView *level2;
@@ -24,6 +26,8 @@
 @property (weak, nonatomic) IBOutlet UIImageView *connectedIndicator;
 
 @property (nonatomic) BOOL stopLevelAnimation;
+
+@property (nonatomic) BOOL crawl;
 
 @end
 
@@ -124,23 +128,120 @@
     CGFloat y = (self.view.bounds.origin.y + self.view.bounds.size.height / 2) - (label.frame.size.height / 2);
     label.frame = CGRectMake(x, y, label.frame.size.width, label.frame.size.height);
     
+    // this next line of code prevents support for multiple labels
+    // we have to disable this for now because we don't support it in the UI on the Teacher side
+    for (UIView *existingLabel in self.labels) [existingLabel removeFromSuperview];
+
     [self.view addSubview:label];
     [self.labels addObject:label];
-    [self animateLabel:label];
+    
+    if (self.crawl) {
+        [self animateLabel:label];
+    } else {
+        for (UIView *otherLabel in self.labels) {
+            CGRect frame = otherLabel.frame;
+            frame.origin.x -= label.frame.size.width;
+            otherLabel.frame = frame;
+        }
+        [self resetLabelRatings];
+    }
+}
+
+- (void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+
+    // should just use autolayout for this!
+    CGFloat x = self.view.bounds.origin.x + self.view.bounds.size.width;
+    for (int i = [self.labels count]-1; i >= 0; i--) {
+        UIView *label = self.labels[i];
+        CGRect frame = label.frame;
+        x -= frame.size.width;
+        frame.origin.x = x;
+        label.frame = frame;
+        if ([self.labelRatings count] == [self.labels count]) {
+            CGPoint center = label.center;
+            CGFloat height = self.view.bounds.size.height - label.frame.size.height;
+            CGFloat offset = height * ([self.labelRatings[i] doubleValue] / 5);
+            center.y = self.view.bounds.origin.y + self.view.bounds.size.height - label.frame.size.height / 2 - offset;
+            label.center = center;
+        }
+    }
+}
+
+- (IBAction)tap:(UITapGestureRecognizer *)sender
+{
+    CGPoint gesturePoint = [sender locationInView:self.view];
+    for (UILabel *label in self.labels) {
+        if (CGRectContainsPoint(label.frame, gesturePoint)) {
+            return;
+        }
+    }
+    int rating = ((self.view.bounds.size.height - [sender locationInView:self.view].y) / self.view.bounds.size.height) * 5;
+    if (rating < 0) rating = 0;
+    [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"PeerRating",
+                                                    @"rating": @(rating)}];
+}
+
+- (void)resetLabelRatings
+{
+    NSMutableArray *labelRatings = [[NSMutableArray alloc] init];
+    for (UIView *label in self.labels) {
+        double rating = 5 - (((label.center.y - (label.frame.size.height/2)) / (self.view.bounds.size.height - label.frame.size.height)) * 5);
+        [labelRatings addObject:@(rating)];
+    }
+    self.labelRatings = labelRatings;
+}
+
+- (IBAction)pan:(UIPanGestureRecognizer *)sender
+{
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        CGPoint gesturePoint = [sender locationInView:self.view];
+        self.movingLabel = nil;
+        for (UILabel *label in self.labels) {
+            if (CGRectContainsPoint(label.frame, gesturePoint)) {
+                self.movingLabel = label;
+            }
+        }
+    }
+    if (self.movingLabel) {
+        CGPoint center = self.movingLabel.center;
+        center = CGPointMake(center.x, center.y + [sender translationInView:self.view].y);
+        self.movingLabel.center = center;
+        [sender setTranslation:CGPointZero inView:self.view];
+    }
+    if (sender.state == UIGestureRecognizerStateEnded) {
+        if (self.movingLabel) {
+            double rating = 5 - (((self.movingLabel.center.y - (self.movingLabel.frame.size.height/2)) / (self.view.bounds.size.height - self.movingLabel.frame.size.height)) * 5);
+            if (rating < 0) rating = 0;
+            [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"PeerRating",
+                                                            @"text": self.movingLabel.text,
+                                                            @"rating": @(rating)}];
+            [self resetLabelRatings];
+       } else {
+           double rating = ((self.view.bounds.size.height - [sender locationInView:self.view].y) / self.view.bounds.size.height) * 5;
+           if (rating < 0) rating = 0;
+           [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"PeerRating",
+                                                            @"rating": @(rating)}];
+        }
+        self.movingLabel = nil;
+    }
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    for (UIView *label in self.levels) {
-        [label.layer removeAllAnimations];
-        self.stopLevelAnimation = YES;
-    }
-    
-    UITouch *touch = [touches anyObject];
-    CGPoint currentTouchPosition = [touch locationInView:self.view];
-    for (UILabel *label in self.labels) {
-        if ([[label.layer presentationLayer] hitTest:currentTouchPosition]) {
-            self.currLabel = label;
+    if (self.crawl) {
+        for (UIView *label in self.levels) {
+            [label.layer removeAllAnimations];
+            self.stopLevelAnimation = YES;
+        }
+        
+        UITouch *touch = [touches anyObject];
+        CGPoint currentTouchPosition = [touch locationInView:self.view];
+        for (UILabel *label in self.labels) {
+            if ([[label.layer presentationLayer] hitTest:currentTouchPosition]) {
+                self.currLabel = label;
+            }
         }
     }
 }
@@ -181,7 +282,9 @@
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [self updateLabelPosition:[[touches anyObject] locationInView:self.view]];
+    if (self.crawl) {
+        [self updateLabelPosition:[[touches anyObject] locationInView:self.view]];
+    }
 }
 
 - (void)snapLabelToNearestLevel:(UILabel *)label
@@ -267,10 +370,12 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [self updateLabelPosition:[[touches anyObject] locationInView:self.view]];
-    UILabel *label = self.currLabel;
-    self.currLabel = nil;
-    [self snapLabelToNearestLevel:label];
+    if (self.crawl) {
+        [self updateLabelPosition:[[touches anyObject] locationInView:self.view]];
+        UILabel *label = self.currLabel;
+        self.currLabel = nil;
+        [self snapLabelToNearestLevel:label];
+    }
 }
 
 - (void)animateLabel:(UILabel *)label
