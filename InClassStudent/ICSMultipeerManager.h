@@ -19,7 +19,7 @@
 + (id)sharedManager;
 
 - (void)sendDict:(NSDictionary *)dict;
-- (void)connect;
+- (void)advertise;
 - (void)disconnect;
 
 @end

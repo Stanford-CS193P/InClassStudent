@@ -46,10 +46,46 @@
                                 <color key="backgroundColor" red="0.74509507419999998" green="0.0" blue="0.076672285800000003" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="tintColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gbz-Ex-iq6" userLabel="ConceptRegion">
+                                <rect key="frame" x="0.0" y="0.0" width="704" height="1024"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <gestureRecognizers/>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="zGm-ji-EAr" appends="YES" id="Hf6-Cg-0Sv"/>
+                                    <outletCollection property="gestureRecognizers" destination="x3F-x4-hdo" appends="YES" id="Pla-Ui-wh3"/>
+                                </connections>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kho-LL-Iwk" userLabel="GeneralRegion">
+                                <rect key="frame" x="704" y="0.0" width="64" height="1024"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="UnderstandingIndicator" translatesAutoresizingMaskIntoConstraints="NO" id="kwu-yD-m4x" userLabel="UnderstandingIndicator">
+                                        <rect key="frame" x="0.0" y="480" width="64" height="64"/>
+                                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="64" id="0sU-Ba-2Kn"/>
+                                        </constraints>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.20000000000000001" colorSpace="calibratedRGB"/>
+                                <gestureRecognizers/>
+                                <constraints>
+                                    <constraint firstAttribute="centerY" secondItem="kwu-yD-m4x" secondAttribute="centerY" priority="250" id="O3g-P3-7Fn"/>
+                                    <constraint firstAttribute="trailing" secondItem="kwu-yD-m4x" secondAttribute="trailing" id="V33-8x-WB3"/>
+                                    <constraint firstItem="kwu-yD-m4x" firstAttribute="leading" secondItem="kho-LL-Iwk" secondAttribute="leading" id="eOZ-rg-J5h"/>
+                                    <constraint firstAttribute="width" constant="64" id="h0n-M9-zrF"/>
+                                </constraints>
+                                <connections>
+                                    <outletCollection property="gestureRecognizers" destination="fa2-p5-aag" appends="YES" id="old-bp-IPY"/>
+                                    <outletCollection property="gestureRecognizers" destination="hIN-zo-6P3" appends="YES" id="xF8-TV-BXN"/>
+                                </connections>
+                            </view>
                             <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ConnectedIndicator" translatesAutoresizingMaskIntoConstraints="NO" id="RiY-H2-6dQ">
                                 <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <constraints>
+                                    <constraint firstAttribute="width" relation="greaterThanOrEqual" constant="20" id="PiO-mM-NlW"/>
+                                    <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="20" id="YcF-Jj-jJW"/>
                                     <constraint firstAttribute="height" constant="20" id="ZQG-7C-Csa"/>
                                     <constraint firstAttribute="width" constant="20" id="hzX-om-zmz"/>
                                 </constraints>
@@ -58,59 +94,82 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <gestureRecognizers/>
                         <constraints>
+                            <constraint firstAttribute="trailing" secondItem="l59-X1-go0" secondAttribute="trailing" id="0Zg-k0-OJZ"/>
+                            <constraint firstItem="UHF-ik-QLn" firstAttribute="top" secondItem="PPi-Vu-R9Q" secondAttribute="bottom" id="4Y0-1E-19w"/>
+                            <constraint firstAttribute="bottom" secondItem="gbz-Ex-iq6" secondAttribute="bottom" id="5Aw-Bq-QgQ"/>
+                            <constraint firstItem="UHF-ik-QLn" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="5Xc-er-ZCw"/>
+                            <constraint firstItem="UHF-ik-QLn" firstAttribute="top" secondItem="PPi-Vu-R9Q" secondAttribute="bottom" id="5fL-g1-YRv"/>
                             <constraint firstItem="UHF-ik-QLn" firstAttribute="height" secondItem="1nm-wb-ksx" secondAttribute="height" id="6jY-oO-cDP"/>
                             <constraint firstItem="UHF-ik-QLn" firstAttribute="height" secondItem="l59-X1-go0" secondAttribute="height" id="7Th-Hd-VRA"/>
-                            <constraint firstAttribute="trailing" secondItem="PPi-Vu-R9Q" secondAttribute="trailing" id="7jT-NT-ah4"/>
                             <constraint firstItem="PPi-Vu-R9Q" firstAttribute="top" secondItem="1nm-wb-ksx" secondAttribute="bottom" id="7sa-5E-8Aa"/>
+                            <constraint firstItem="gbz-Ex-iq6" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="AKD-be-szn"/>
                             <constraint firstItem="UHF-ik-QLn" firstAttribute="height" secondItem="pPU-Vx-WcV" secondAttribute="height" id="AMG-HO-DkT"/>
-                            <constraint firstItem="1nm-wb-ksx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="C5N-aJ-9k9"/>
-                            <constraint firstAttribute="trailing" secondItem="1nm-wb-ksx" secondAttribute="trailing" id="FtK-L5-9vf"/>
-                            <constraint firstItem="pPU-Vx-WcV" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="HmF-6X-h8t"/>
-                            <constraint firstItem="PPi-Vu-R9Q" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="IHu-nq-Tu0"/>
-                            <constraint firstItem="l59-X1-go0" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="JrQ-ot-k8l"/>
+                            <constraint firstAttribute="bottom" secondItem="kho-LL-Iwk" secondAttribute="bottom" id="AMP-tQ-vEE"/>
+                            <constraint firstItem="pPU-Vx-WcV" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="CJr-gF-G4q"/>
+                            <constraint firstAttribute="trailing" secondItem="UHF-ik-QLn" secondAttribute="trailing" id="EJx-aX-3hW"/>
+                            <constraint firstItem="kho-LL-Iwk" firstAttribute="leading" secondItem="gbz-Ex-iq6" secondAttribute="trailing" id="GPa-L8-7rv"/>
+                            <constraint firstAttribute="trailing" secondItem="1nm-wb-ksx" secondAttribute="trailing" id="Jf0-hD-I06"/>
                             <constraint firstItem="l59-X1-go0" firstAttribute="top" secondItem="pPU-Vx-WcV" secondAttribute="bottom" id="LdS-Hm-LIR"/>
-                            <constraint firstItem="RiY-H2-6dQ" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="OAA-YH-D9m"/>
-                            <constraint firstItem="UHF-ik-QLn" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="PJj-ic-aNw"/>
-                            <constraint firstItem="UHF-ik-QLn" firstAttribute="top" secondItem="PPi-Vu-R9Q" secondAttribute="bottom" id="RvC-4B-rjA"/>
-                            <constraint firstItem="EdR-tG-nzi" firstAttribute="top" secondItem="UHF-ik-QLn" secondAttribute="bottom" id="Vuh-y7-boV"/>
-                            <constraint firstAttribute="trailing" secondItem="UHF-ik-QLn" secondAttribute="trailing" id="YAg-t3-dRO"/>
-                            <constraint firstItem="pPU-Vx-WcV" firstAttribute="top" secondItem="xlB-eX-r4q" secondAttribute="bottom" constant="-20" id="Ybb-T2-LCk"/>
-                            <constraint firstItem="RiY-H2-6dQ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="cAW-Xl-W9h"/>
+                            <constraint firstItem="PPi-Vu-R9Q" firstAttribute="height" secondItem="1nm-wb-ksx" secondAttribute="height" id="Ruz-xI-hg1"/>
+                            <constraint firstItem="RiY-H2-6dQ" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="Y3P-g3-ZOu"/>
+                            <constraint firstAttribute="bottom" secondItem="UHF-ik-QLn" secondAttribute="bottom" id="Yen-hW-1fx"/>
+                            <constraint firstAttribute="trailing" secondItem="kho-LL-Iwk" secondAttribute="trailing" id="cAH-cy-OZr"/>
+                            <constraint firstAttribute="trailing" secondItem="pPU-Vx-WcV" secondAttribute="trailing" id="d9d-5D-3JO"/>
+                            <constraint firstItem="l59-X1-go0" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="e0d-4V-x4i"/>
                             <constraint firstItem="UHF-ik-QLn" firstAttribute="height" secondItem="PPi-Vu-R9Q" secondAttribute="height" id="fvT-jl-QEl"/>
+                            <constraint firstItem="gbz-Ex-iq6" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="gmY-f9-Lr6"/>
+                            <constraint firstItem="1nm-wb-ksx" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="hSj-0T-OrJ"/>
                             <constraint firstItem="1nm-wb-ksx" firstAttribute="top" secondItem="l59-X1-go0" secondAttribute="bottom" id="lFf-gi-l6M"/>
-                            <constraint firstAttribute="trailing" secondItem="pPU-Vx-WcV" secondAttribute="trailing" id="ssw-E3-YcJ"/>
-                            <constraint firstAttribute="trailing" secondItem="l59-X1-go0" secondAttribute="trailing" id="wwx-UH-HPW"/>
+                            <constraint firstItem="RiY-H2-6dQ" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="m8P-ju-ehb"/>
+                            <constraint firstAttribute="trailing" secondItem="PPi-Vu-R9Q" secondAttribute="trailing" id="qUc-KQ-Gdd"/>
+                            <constraint firstItem="pPU-Vx-WcV" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="rBH-wj-yUQ"/>
+                            <constraint firstItem="PPi-Vu-R9Q" firstAttribute="height" secondItem="UHF-ik-QLn" secondAttribute="height" id="rUy-iM-gp2"/>
+                            <constraint firstItem="PPi-Vu-R9Q" firstAttribute="height" secondItem="UHF-ik-QLn" secondAttribute="height" id="sRo-5f-bXA"/>
+                            <constraint firstItem="PPi-Vu-R9Q" firstAttribute="height" secondItem="l59-X1-go0" secondAttribute="height" id="u1B-JU-QEt"/>
+                            <constraint firstItem="PPi-Vu-R9Q" firstAttribute="height" secondItem="pPU-Vx-WcV" secondAttribute="height" id="wUl-gt-COM"/>
+                            <constraint firstItem="PPi-Vu-R9Q" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="whJ-o8-bR2"/>
+                            <constraint firstItem="kho-LL-Iwk" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="xdi-7b-S84"/>
                         </constraints>
-                        <connections>
-                            <outletCollection property="gestureRecognizers" destination="4N5-sR-Y9m" appends="YES" id="3Ua-rE-xap"/>
-                            <outletCollection property="gestureRecognizers" destination="ZF0-Jt-tSw" appends="YES" id="ZfJ-sg-nqd"/>
-                        </connections>
                     </view>
                     <connections>
-                        <outlet property="connectedIndicator" destination="RiY-H2-6dQ" id="cgu-7s-XRu"/>
-                        <outlet property="level1" destination="UHF-ik-QLn" id="tUo-ro-XMh"/>
-                        <outlet property="level2" destination="PPi-Vu-R9Q" id="eYq-Yr-faP"/>
-                        <outlet property="level3" destination="1nm-wb-ksx" id="Vq0-HR-84Y"/>
-                        <outlet property="level4" destination="l59-X1-go0" id="fji-vm-qNb"/>
-                        <outlet property="level5" destination="pPU-Vx-WcV" id="qdt-Tp-DiJ"/>
+                        <outlet property="conceptRegion" destination="gbz-Ex-iq6" id="YVt-b3-b4p"/>
+                        <outlet property="connectedIndicator" destination="RiY-H2-6dQ" id="07b-DH-1LJ"/>
+                        <outlet property="generalRegion" destination="kho-LL-Iwk" id="M75-cG-ILv"/>
+                        <outlet property="level1" destination="UHF-ik-QLn" id="TLo-vS-5d9"/>
+                        <outlet property="level2" destination="PPi-Vu-R9Q" id="C1x-cT-99c"/>
+                        <outlet property="level3" destination="1nm-wb-ksx" id="dOd-Gg-XMc"/>
+                        <outlet property="level4" destination="l59-X1-go0" id="jTg-VN-OKI"/>
+                        <outlet property="level5" destination="pPU-Vx-WcV" id="A3I-47-kzL"/>
+                        <outlet property="understandingIndicator" destination="kwu-yD-m4x" id="PFB-Bg-S8R"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="4N5-sR-Y9m">
+                <panGestureRecognizer minimumNumberOfTouches="1" id="zGm-ji-EAr">
                     <connections>
-                        <action selector="tap:" destination="BYZ-38-t0r" id="wVT-0Z-brx"/>
-                    </connections>
-                </tapGestureRecognizer>
-                <panGestureRecognizer minimumNumberOfTouches="1" id="ZF0-Jt-tSw">
-                    <connections>
-                        <action selector="pan:" destination="BYZ-38-t0r" id="Wci-dI-lIr"/>
+                        <action selector="conceptRegionPan:" destination="BYZ-38-t0r" id="drB-Sr-6sB"/>
                     </connections>
                 </panGestureRecognizer>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="fa2-p5-aag">
+                    <connections>
+                        <action selector="generalRegionPan:" destination="BYZ-38-t0r" id="SS7-Y5-jui"/>
+                    </connections>
+                </panGestureRecognizer>
+                <tapGestureRecognizer id="hIN-zo-6P3">
+                    <connections>
+                        <action selector="generalRegionTap:" destination="BYZ-38-t0r" id="Tzu-f9-qhk"/>
+                    </connections>
+                </tapGestureRecognizer>
+                <tapGestureRecognizer id="x3F-x4-hdo">
+                    <connections>
+                        <action selector="conceptRegionTap:" destination="BYZ-38-t0r" id="TTp-Jo-nAy"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
         </scene>
     </scenes>
     <resources>
         <image name="ConnectedIndicator" width="128" height="128"/>
+        <image name="UnderstandingIndicator" width="128" height="128"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar" statusBarStyle="blackOpaque"/>

@@ -8,14 +8,16 @@
 
 #import "ICSViewController.h"
 #import "ICSMultipeerManager.h"
+#import "ICSConceptRating.h"
 
+#define FONT_SIZE 20.0
+#define FONT_NAME @"AvenirNext-Medium"
+#define LABEL_PADDING 32
+#define LABEL_MARGIN_X 8
 
 @interface ICSViewController ()
 
-@property (nonatomic, strong) NSMutableArray *labels;
-@property (nonatomic, strong) UILabel *currLabel;
 @property (nonatomic, weak) UILabel *movingLabel;
-@property (nonatomic, strong) NSMutableArray *labelRatings;
 
 @property (weak, nonatomic) IBOutlet UIView *level1;
 @property (weak, nonatomic) IBOutlet UIView *level2;
@@ -23,23 +25,19 @@
 @property (weak, nonatomic) IBOutlet UIView *level4;
 @property (weak, nonatomic) IBOutlet UIView *level5;
 @property (nonatomic, strong) NSArray *levels;
+
 @property (weak, nonatomic) IBOutlet UIImageView *connectedIndicator;
+@property (weak, nonatomic) IBOutlet UIView *conceptRegion;
+@property (weak, nonatomic) IBOutlet UIView *generalRegion;
+@property (weak, nonatomic) IBOutlet UIImageView *understandingIndicator;
+@property (weak, nonatomic) NSLayoutConstraint *generalUnderstandingLevelLayoutConstraint;
 
-@property (nonatomic) BOOL stopLevelAnimation;
-
-@property (nonatomic) BOOL crawl;
+@property (nonatomic, strong) NSMutableArray *outgoingQueue;
+@property (nonatomic, strong) NSMutableArray *conceptRatings; // of ICSConceptRating
 
 @end
 
 @implementation ICSViewController
-
-- (NSMutableArray *)labels
-{
-    if (!_labels) {
-        _labels = [[NSMutableArray alloc] init];
-    }
-    return _labels;
-}
 
 - (NSArray *)levels
 {
@@ -49,11 +47,25 @@
     return _levels;
 }
 
+- (NSMutableArray *)outgoingQueue
+{
+    if (!_outgoingQueue) {
+        _outgoingQueue = [[NSMutableArray alloc] init];
+    }
+    return _outgoingQueue;
+}
+
+- (NSMutableArray *)conceptRatings
+{
+    if (!_conceptRatings) {
+        _conceptRatings = [[NSMutableArray alloc] init];
+    }
+    return _conceptRatings;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
-    [ICSMultipeerManager sharedManager];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveData:)
@@ -69,6 +81,8 @@
                                              selector:@selector(serverDidConnect)
                                                  name:kServerConnected
                                                object:nil];
+    
+    [self updateGeneralUnderstandingLevelLayoutConstraint];
 }
 
 - (void)serverDidDisconnect
@@ -89,28 +103,150 @@
 {
     NSString *name = [notification name];
     
-    // TODO: generalize to other notifications as necessary
-    assert([name isEqualToString:kDataReceivedFromServerNotification]);
-    
-    NSData *data = [[notification userInfo] valueForKey:kDataKey];
-    if (data == nil) return;
-    NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    NSLog(@"dataStr %@", dataStr);
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        [self startMessageAnimation:dataStr];
-    });
+    if ([name isEqualToString:kDataReceivedFromServerNotification]) {
+        NSData *data = [[notification userInfo] valueForKey:kDataKey];
+        if (!data) return;
+        NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        NSLog(@"dataStr %@", dataStr);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self showNewConcept:dataStr];
+        });
+    }
 }
 
-#define FONT_SIZE 20.0
-#define FONT_NAME @"AvenirNext-Medium"
-#define LABEL_PADDING 32
+- (IBAction)generalRegionTap:(UITapGestureRecognizer *)sender
+{
+    CGPoint gesturePoint = [sender locationInView:self.generalRegion];
+    [self onFinishIndicatingGeneralUnderstandingAtLocation:gesturePoint];
+}
 
-- (void)startMessageAnimation:(NSString *)message
+- (IBAction)generalRegionPan:(UIPanGestureRecognizer *)sender
+{
+    CGPoint gesturePoint = [sender locationInView:self.generalRegion];
+    
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        CGPoint center = self.understandingIndicator.center;
+        center = CGPointMake(center.x, gesturePoint.y);
+        self.understandingIndicator.center = center;
+    }
+    
+    CGPoint center = self.understandingIndicator.center;
+    center = CGPointMake(center.x, center.y + [sender translationInView:self.generalRegion].y);
+    self.understandingIndicator.center = center;
+    [sender setTranslation:CGPointZero inView:self.generalRegion];
+    
+    if (sender.state == UIGestureRecognizerStateEnded) {
+        [self onFinishIndicatingGeneralUnderstandingAtLocation:gesturePoint];
+    }
+}
+
+// TODO: better name
+- (void)onFinishIndicatingGeneralUnderstandingAtLocation:(CGPoint)location
+{
+    [self updateViewLocation:self.understandingIndicator
+            forTouchPosition:location];
+    [self pulseView:self.understandingIndicator];
+    
+    [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"GeneralRating",
+                                                    @"rating": @([self levelRatingOfUnderstandingIndicator])}];
+ 
+    [self updateGeneralUnderstandingLevelLayoutConstraint];
+}
+
+- (IBAction)conceptRegionTap:(UITapGestureRecognizer *)sender
+{
+    NSLog(@"conceptRegionTap");
+    CGPoint gesturePoint = [sender locationInView:self.conceptRegion];
+    
+    // Check for match vertically
+    for (ICSConceptRating *cR in self.conceptRatings) {
+        if (!cR.label) continue;
+        if (CGRectContainsPoint(CGRectMake(cR.label.frame.origin.x, gesturePoint.y, cR.label.frame.size.width, 1),
+                                gesturePoint)) {
+            self.movingLabel = cR.label;
+            break;
+        }
+    }
+    [self onFinishIndicatingConceptualUnderstandingAtLocation:gesturePoint];
+}
+
+- (IBAction)conceptRegionPan:(UIPanGestureRecognizer *)sender
+{
+    CGPoint gesturePoint = [sender locationInView:self.conceptRegion];
+    
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        self.movingLabel = nil;
+        
+        for (UIView *label in self.levels) {
+            [label.layer removeAllAnimations];
+        }
+        
+        for (ICSConceptRating *cR in self.conceptRatings) {
+            if (CGRectContainsPoint(cR.label.frame, gesturePoint)) {
+                self.movingLabel = cR.label;
+                break;
+            }
+        }
+    }
+    
+    if (self.movingLabel) {
+        [self updateViewLocation:self.movingLabel forTouchPosition:gesturePoint];
+    }
+    
+    if (sender.state == UIGestureRecognizerStateEnded) {
+        [self onFinishIndicatingConceptualUnderstandingAtLocation:gesturePoint];
+    }
+}
+
+// TODO: better name
+- (void)onFinishIndicatingConceptualUnderstandingAtLocation:(CGPoint)location
+{
+    if (!self.movingLabel) return;
+    
+    [self updateViewLocation:self.movingLabel forTouchPosition:location];
+
+    UILabel *label = self.movingLabel;
+    self.movingLabel = nil;
+    [self snapLabelToNearestLevel:label];
+    
+    ICSConceptRating *cR = [self conceptRatingForLabel:label];
+    cR.rating = [self levelRatingOfLabel:label];
+    
+    [self updateLevelLayoutConstraint:cR];
+    
+    // TODO: queue up responses in case of network failure
+    [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"ConceptRating",
+                                                    @"text": cR.conceptName,
+                                                    @"rating": @(cR.rating)}];
+}
+
+- (void)pulseView:(UIView *)view
+{
+    CABasicAnimation *anim;
+    anim = [CABasicAnimation animationWithKeyPath:@"opacity"];
+    anim.duration = 0.25;
+    anim.repeatCount = 2;
+    anim.autoreverses = YES;
+    anim.fromValue = [NSNumber numberWithFloat:view.alpha];
+    anim.toValue = [NSNumber numberWithFloat:0.85];
+    [view.layer addAnimation:anim forKey:@"animateOpacity"];
+}
+
+- (void)showNewConcept:(NSString *)message
 {
     if (!message) return;
     
+    // this next line of code prevents support for multiple labels
+    // we have to disable this for now because we don't support it in the UI on the Teacher side
+    for (ICSConceptRating *cR in self.conceptRatings) {
+        [cR.label removeFromSuperview];
+        cR.label = nil;
+    }
+    
     UILabel *label = [[UILabel alloc] init];
+    ICSConceptRating *conceptRating = [[ICSConceptRating alloc] initWithConceptName:message andLabel:label];
+    [self.conceptRatings addObject:conceptRating];
+    
     NSDictionary *attributes = @{ NSForegroundColorAttributeName: [UIColor whiteColor],
                                   NSFontAttributeName: [UIFont fontWithName:FONT_NAME size:FONT_SIZE] };
     NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:message
@@ -119,131 +255,95 @@
     label.userInteractionEnabled = YES;
     [label sizeToFit];
     
-    label.frame = CGRectMake(label.frame.origin.x, label.frame.origin.y,
-                             label.frame.size.width + LABEL_PADDING, self.level1.frame.size.height);
     label.textAlignment = NSTextAlignmentCenter;
     label.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.05];
     
-    CGFloat x = self.view.bounds.origin.x + self.view.bounds.size.width;
-    CGFloat y = (self.view.bounds.origin.y + self.view.bounds.size.height / 2) - (label.frame.size.height / 2);
-    label.frame = CGRectMake(x, y, label.frame.size.width, label.frame.size.height);
     
-    // this next line of code prevents support for multiple labels
-    // we have to disable this for now because we don't support it in the UI on the Teacher side
-    for (UIView *existingLabel in self.labels) [existingLabel removeFromSuperview];
-
-    [self.view addSubview:label];
-    [self.labels addObject:label];
+    // shift over if another concept is in view
+//    for (ICSConceptRating *cR in self.conceptRatings) {
+//        UILabel *otherLabel = cR.label;
+//        if (otherLabel == label) continue;
+//        CGRect frame = otherLabel.frame;
+//        frame.origin.x -= label.frame.size.width + LABEL_MARGIN_X;
+//        otherLabel.frame = frame;
+//    }
     
-    if (self.crawl) {
-        [self animateLabel:label];
-    } else {
-        for (UIView *otherLabel in self.labels) {
-            CGRect frame = otherLabel.frame;
-            frame.origin.x -= label.frame.size.width;
-            otherLabel.frame = frame;
-        }
-        [self resetLabelRatings];
-    }
+    // Fade the label in
+    label.alpha = 0;
+    [self.conceptRegion addSubview:label];
+    [UIView animateWithDuration:0.75 delay:0
+                        options:(UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionCurveEaseIn)
+                     animations:^{ label.alpha = 1; }
+                     completion:^(BOOL finished){ }];
+    
+    label.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.level1
+                                                          attribute:NSLayoutAttributeHeight
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:label
+                                                          attribute:NSLayoutAttributeHeight
+                                                         multiplier:1
+                                                           constant:0]];
+    
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:label
+                                                          attribute:NSLayoutAttributeWidth
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:nil
+                                                          attribute:NSLayoutAttributeNotAnAttribute
+                                                         multiplier:1
+                                                           constant:label.frame.size.width + LABEL_PADDING]];
+    
+    // Center on screen for now because there is only one word
+    [self.view addConstraint:[NSLayoutConstraint constraintWithItem:self.conceptRegion
+                                                          attribute:NSLayoutAttributeCenterX
+                                                          relatedBy:NSLayoutRelationEqual
+                                                             toItem:label
+                                                          attribute:NSLayoutAttributeCenterX
+                                                         multiplier:1
+                                                           constant:0]];
+    
+    // Start rating off in middle
+    conceptRating.rating = 2;
+    [self updateLevelLayoutConstraint:conceptRating];
 }
 
-- (void)viewDidLayoutSubviews
+- (void)updateLevelLayoutConstraint:(ICSConceptRating *)cR
 {
-    [super viewDidLayoutSubviews];
-
-    // should just use autolayout for this!
-    CGFloat x = self.view.bounds.origin.x + self.view.bounds.size.width;
-    for (int i = [self.labels count]-1; i >= 0; i--) {
-        UIView *label = self.labels[i];
-        CGRect frame = label.frame;
-        x -= frame.size.width;
-        frame.origin.x = x;
-        label.frame = frame;
-        if ([self.labelRatings count] == [self.labels count]) {
-            CGPoint center = label.center;
-            CGFloat height = self.view.bounds.size.height - label.frame.size.height;
-            CGFloat offset = height * ([self.labelRatings[i] doubleValue] / 5);
-            center.y = self.view.bounds.origin.y + self.view.bounds.size.height - label.frame.size.height / 2 - offset;
-            label.center = center;
-        }
+    UIView *level = self.levels[cR.rating];
+    if (cR.levelConstraint) {
+        [self.view removeConstraint:cR.levelConstraint];
     }
+    
+    cR.levelConstraint = [NSLayoutConstraint constraintWithItem:level
+                                                      attribute:NSLayoutAttributeCenterY
+                                                      relatedBy:NSLayoutRelationEqual
+                                                         toItem:cR.label
+                                                      attribute:NSLayoutAttributeCenterY
+                                                     multiplier:1
+                                                       constant:0];
+    [self.view addConstraint:cR.levelConstraint];
 }
 
-- (IBAction)tap:(UITapGestureRecognizer *)sender
+- (void)updateGeneralUnderstandingLevelLayoutConstraint
 {
-    CGPoint gesturePoint = [sender locationInView:self.view];
-    for (UILabel *label in self.labels) {
-        if (CGRectContainsPoint(label.frame, gesturePoint)) {
-            return;
-        }
-    }
-    int rating = ((self.view.bounds.size.height - [sender locationInView:self.view].y) / self.view.bounds.size.height) * 5;
-    if (rating < 0) rating = 0;
-    [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"PeerRating",
-                                                    @"rating": @(rating)}];
-}
-
-- (void)resetLabelRatings
-{
-    NSMutableArray *labelRatings = [[NSMutableArray alloc] init];
-    for (UIView *label in self.labels) {
-        double rating = 5 - (((label.center.y - (label.frame.size.height/2)) / (self.view.bounds.size.height - label.frame.size.height)) * 5);
-        [labelRatings addObject:@(rating)];
-    }
-    self.labelRatings = labelRatings;
-}
-
-- (IBAction)pan:(UIPanGestureRecognizer *)sender
-{
-    if (sender.state == UIGestureRecognizerStateBegan) {
-        CGPoint gesturePoint = [sender locationInView:self.view];
-        self.movingLabel = nil;
-        for (UILabel *label in self.labels) {
-            if (CGRectContainsPoint(label.frame, gesturePoint)) {
-                self.movingLabel = label;
-            }
-        }
-    }
-    if (self.movingLabel) {
-        CGPoint center = self.movingLabel.center;
-        center = CGPointMake(center.x, center.y + [sender translationInView:self.view].y);
-        self.movingLabel.center = center;
-        [sender setTranslation:CGPointZero inView:self.view];
-    }
-    if (sender.state == UIGestureRecognizerStateEnded) {
-        if (self.movingLabel) {
-            double rating = 5 - (((self.movingLabel.center.y - (self.movingLabel.frame.size.height/2)) / (self.view.bounds.size.height - self.movingLabel.frame.size.height)) * 5);
-            if (rating < 0) rating = 0;
-            [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"PeerRating",
-                                                            @"text": self.movingLabel.text,
-                                                            @"rating": @(rating)}];
-            [self resetLabelRatings];
-       } else {
-           double rating = ((self.view.bounds.size.height - [sender locationInView:self.view].y) / self.view.bounds.size.height) * 5;
-           if (rating < 0) rating = 0;
-           [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"PeerRating",
-                                                            @"rating": @(rating)}];
-        }
-        self.movingLabel = nil;
-    }
-}
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if (self.crawl) {
-        for (UIView *label in self.levels) {
-            [label.layer removeAllAnimations];
-            self.stopLevelAnimation = YES;
-        }
-        
-        UITouch *touch = [touches anyObject];
-        CGPoint currentTouchPosition = [touch locationInView:self.view];
-        for (UILabel *label in self.labels) {
-            if ([[label.layer presentationLayer] hitTest:currentTouchPosition]) {
-                self.currLabel = label;
-            }
-        }
-    }
+    self.understandingIndicator.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    if (self.generalUnderstandingLevelLayoutConstraint)
+        [self.view removeConstraint:self.generalUnderstandingLevelLayoutConstraint];
+    
+    UIView *level = [self nearestLevelToPoint:self.understandingIndicator.center];
+    if (!level) return;
+    
+    self.generalUnderstandingLevelLayoutConstraint = [NSLayoutConstraint
+                                                      constraintWithItem:level
+                                                      attribute:NSLayoutAttributeCenterY
+                                                      relatedBy:NSLayoutRelationEqual
+                                                      toItem:self.understandingIndicator
+                                                      attribute:NSLayoutAttributeCenterY
+                                                      multiplier:1
+                                                      constant:0];
+    [self.view addConstraint:self.generalUnderstandingLevelLayoutConstraint];
 }
 
 - (UIView *)nearestLevelToPoint:(CGPoint)point
@@ -258,42 +358,35 @@
     return level;
 }
 
-// TODO: better way...this is gross...
-- (int)nearestLevelValueToLabel:(UILabel *)label
+- (void)updateViewLocation:(UIView *)view forTouchPosition:(CGPoint)position
 {
-    CALayer *labelLayer = [label.layer presentationLayer];
-    CGPoint labelCenter = CGPointMake(0, labelLayer.frame.origin.y + labelLayer.frame.size.height / 2);
-    UIView *level = [self nearestLevelToPoint:labelCenter];
-    return (int)[self.levels indexOfObject:level];
-}
-
-- (void)updateLabelPosition:(CGPoint)position
-{
-    if (!self.currLabel) return;
+    if (!view) return;
     
     UIView *level = [self nearestLevelToPoint:position];
     if (!level) {
-        self.currLabel.center = CGPointMake(self.currLabel.center.x, position.y);
+        view.center = CGPointMake(view.center.x, position.y);
     } else {
-        self.currLabel.center = CGPointMake(self.currLabel.center.x,
-                                            level.frame.origin.y + level.frame.size.height/2);
+        view.center = CGPointMake(view.center.x, level.frame.origin.y + level.frame.size.height / 2);
     }
 }
 
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+- (int)levelRatingOfLabel:(UILabel *)label
 {
-    if (self.crawl) {
-        [self updateLabelPosition:[[touches anyObject] locationInView:self.view]];
-    }
+    UIView *level = [self nearestLevelToPoint:label.center];
+    return (int)[self.levels indexOfObject:level];
+}
+
+- (int)levelRatingOfUnderstandingIndicator
+{
+    UIView *level = [self nearestLevelToPoint:self.understandingIndicator.center];
+    return (int)[self.levels indexOfObject:level];
 }
 
 - (void)snapLabelToNearestLevel:(UILabel *)label
 {
     if (!label) return;
-    CALayer *labelLayer = [label.layer presentationLayer];
-    CGPoint labelCenter = CGPointMake(labelLayer.frame.origin.x + labelLayer.frame.size.width / 2,
-                                      labelLayer.frame.origin.y + labelLayer.frame.size.height / 2);
-    UIView *level = [self nearestLevelToPoint:labelCenter];
+    
+    UIView *level = [self nearestLevelToPoint:label.center];
     if (!level) return;
     
     [UIView animateWithDuration:0.2 animations:^{
@@ -303,100 +396,17 @@
                                  label.frame.size.height);
     }];
     
-    [self animateLevel:level];
+    [self pulseView:level];
 }
 
-- (void)animateLevel:(UIView *)level
+- (ICSConceptRating *)conceptRatingForLabel:(UILabel*)label
 {
-    UIColor *originalBGColor = level.backgroundColor;
-    
-    __block NSMutableArray* animationBlocks = [NSMutableArray new];
-    typedef void(^animationBlock)(BOOL);
-    
-    animationBlock (^getNextAnimation)() = ^{
-        if (self.stopLevelAnimation) {
-            NSLog(@"stopLevelAnimation");
-            self.stopLevelAnimation = NO;
-            animationBlock block = (animationBlock)[animationBlocks lastObject];
-            animationBlocks = nil;
-            return block;
+    for (ICSConceptRating *cR in self.conceptRatings) {
+        if (cR.label == label) {
+            return cR;
         }
-        
-        if ([animationBlocks count] > 0){
-            animationBlock block = (animationBlock)[animationBlocks objectAtIndex:0];
-            [animationBlocks removeObjectAtIndex:0];
-            return block;
-        } else {
-            return ^(BOOL finished){
-                animationBlocks = nil;
-            };
-        }
-    };
-    
-    void (^brighter)(BOOL) = ^(BOOL finished){
-        CGFloat hue, saturation, brightness, alpha;
-        if ([originalBGColor getHue:&hue saturation:&saturation brightness:&brightness alpha:&alpha]) {
-            UIColor *brighterColor = [UIColor colorWithHue:hue
-                                                saturation:MAX(saturation - 0.05, 0.0)
-                                                brightness:MIN(brightness + 0.075, 1.0)
-                                                     alpha:alpha];
-            
-            [UIView animateWithDuration:0.25
-                                  delay:0.0
-                                options:UIViewAnimationOptionCurveLinear|UIViewAnimationOptionAllowUserInteraction
-                             animations:^{
-                                 level.backgroundColor = brighterColor;
-                             } completion:getNextAnimation()];
-        }
-    };
-    
-    void (^darker)(BOOL) = ^(BOOL finished){
-        [UIView animateWithDuration:0.25
-                              delay:0.0
-                            options:UIViewAnimationOptionCurveLinear|UIViewAnimationOptionAllowUserInteraction
-                         animations:^{
-                             level.backgroundColor = originalBGColor;
-                         } completion:getNextAnimation()];
-    };
-    
-    [animationBlocks addObject:brighter];
-    [animationBlocks addObject:darker];
-    [animationBlocks addObject:brighter];
-    [animationBlocks addObject:darker];
-    
-    if (self.stopLevelAnimation) self.stopLevelAnimation = NO;
-    getNextAnimation()(YES);
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if (self.crawl) {
-        [self updateLabelPosition:[[touches anyObject] locationInView:self.view]];
-        UILabel *label = self.currLabel;
-        self.currLabel = nil;
-        [self snapLabelToNearestLevel:label];
     }
-}
-
-- (void)animateLabel:(UILabel *)label
-{
-    [UIView animateWithDuration:10
-                          delay:0
-                        options:(UIViewAnimationOptionCurveLinear|
-                                 UIViewAnimationOptionAllowUserInteraction)
-                     animations:^{
-                         label.transform = CGAffineTransformMakeTranslation(-1 * self.view.bounds.size.width - label.frame.size.width, 0);
-                     }  completion:^(BOOL finished) {
-                         // TODO: queue up responses in case of network failure
-                         int rating = [self nearestLevelValueToLabel:label];
-                         [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"PeerRating",
-                                                                         @"text": label.text,
-                                                                         @"rating": @(rating)}];
-                     }];
-}
-
-- (void)sendRatingToTeacher {
-
+    return nil;
 }
 
 @end

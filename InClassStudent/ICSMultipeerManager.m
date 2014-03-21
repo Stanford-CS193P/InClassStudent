@@ -39,7 +39,7 @@ static NSString * const XXServiceType = @"InClass-service";
 {
     self = [super init];
     if (self) {
-        [self connect];
+        [self advertise];
     }
     return self;
 }
@@ -72,6 +72,7 @@ static NSString * const XXServiceType = @"InClass-service";
     return _session;
 }
 
+// Used for debugging check mark.
 - (void)setServerIsConnected:(BOOL)serverIsConnected
 {
     _serverIsConnected = serverIsConnected;
@@ -93,15 +94,17 @@ static NSString * const XXServiceType = @"InClass-service";
     NSLog(@"didReceiveInvitationFromPeer, %@", peerID.displayName);
     if (self.serverPeerID) {
         NSLog(@"Was already invited, so we'll overwrite...");
+        [self disconnectPeer];
     }
     self.serverPeerID = peerID;
     
     invitationHandler(YES, self.session);
 }
 
-- (void)session:(MCSession *)session didReceiveCertificate:(NSArray *)certificate fromPeer:(MCPeerID *)peerID certificateHandler:(void (^)(BOOL))certificateHandler
+- (void)session:(MCSession *)session didReceiveCertificate:(NSArray *)certificate
+       fromPeer:(MCPeerID *)peerID certificateHandler:(void (^)(BOOL))certificateHandler
 {
-    NSLog(@"didReceiveCertificate %@", peerID.displayName);
+    NSLog(@"INFO: didReceiveCertificate %@", peerID.displayName);
     if (certificateHandler) certificateHandler(YES);
 }
 
@@ -109,17 +112,17 @@ static NSString * const XXServiceType = @"InClass-service";
 {
     if (state == MCSessionStateConnected) {
         NSLog(@"MCSessionStateConnected %@", peerID.displayName);
+        
         if (peerID == self.serverPeerID) {
+            NSLog(@"Server connected");
             self.serverIsConnected = YES;
         }
     } else if (state == MCSessionStateNotConnected) {
         NSLog(@"MCSessionStateNotConnected %@", peerID.displayName);
+        
         if (peerID == self.serverPeerID) {
             NSLog(@"Server disconnected");
-            self.serverPeerID = nil;
-            self.serverIsConnected = NO;
-            [self.session disconnect];
-            self.session = nil;
+            [self disconnectPeer];
         }
     } else if (state == MCSessionStateConnecting) {
         NSLog(@"MCSessionStateConnecting %@", peerID.displayName);
@@ -139,8 +142,8 @@ static NSString * const XXServiceType = @"InClass-service";
     [dictMod setObject:[NSDate date] forKey:@"time"];
     [dictMod setObject:[[NSUUID UUID] UUIDString] forKey:@"uuid"];
     [dictMod setObject:self.localPeerID.displayName forKey:@"peerIDDisplayName"];
-
-    NSLog(@"sendDict %@", dictMod);
+    
+    NSLog(@"INFO: sendDict %@", dictMod);
     
     NSData* data = [NSKeyedArchiver archivedDataWithRootObject:dictMod];
     
@@ -149,26 +152,28 @@ static NSString * const XXServiceType = @"InClass-service";
                                  toPeers:@[self.serverPeerID]
                                 withMode:MCSessionSendDataReliable
                                    error:&error];
-    if (!result) NSLog(@"[Error] %@", error);
+    if (!result) NSLog(@"ERROR: %@", error);
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
 {
-    assert(peerID == self.serverPeerID);
+    if (peerID != self.serverPeerID) {
+        NSLog(@"WARN: didReceiveData, but not from server. Ignoring.");
+        return;
+    }
     
     NSString *message = [[NSString alloc] initWithData:data
                                               encoding:NSUTF8StringEncoding];
-    NSLog(@"didReceiveData from peer %@", message);
+    NSLog(@"INFO: didReceiveData from peer %@", message);
     
     [[NSNotificationCenter defaultCenter] postNotificationName:kDataReceivedFromServerNotification
                                                         object:self
                                                       userInfo:@{kDataKey: data}];
 }
 
-- (void)connect
+- (void)advertise
 {
     NSLog(@"advertising self...");
-    
     [self.advertiser startAdvertisingPeer];
 }
 
@@ -176,11 +181,18 @@ static NSString * const XXServiceType = @"InClass-service";
 {
     NSLog(@"disconnecting self...");
     
+    [self.advertiser stopAdvertisingPeer];
+    self.advertiser = nil;
+    
+    [self disconnectPeer];
+}
+
+- (void)disconnectPeer
+{
     [self.session disconnect];
     self.session = nil;
     
     self.serverPeerID = nil;
-    self.advertiser = nil;
     self.serverIsConnected = NO;
 }
 
