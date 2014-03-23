@@ -9,14 +9,13 @@
 #import "ICSMultipeerManager.h"
 #import <MultipeerConnectivity/MultipeerConnectivity.h>
 
-@interface ICSMultipeerManager()<MCNearbyServiceAdvertiserDelegate, MCSessionDelegate>
+@interface ICSMultipeerManager()<MCNearbyServiceBrowserDelegate, MCSessionDelegate>
 
-@property (nonatomic, strong) MCNearbyServiceAdvertiser *advertiser;
+@property (nonatomic, strong) MCNearbyServiceBrowser *browser;
 @property (nonatomic, strong) MCPeerID *localPeerID;
 // TODO: make able to connect to multiple teacher apps
-@property (nonatomic, strong) MCPeerID *serverPeerID;
+@property (nonatomic, strong) NSMutableDictionary *serverPeerIDs; // of MCPeerID
 @property (nonatomic) BOOL serverIsConnected;
-@property (nonatomic, strong) MCSession *session;
 
 @end
 
@@ -35,11 +34,20 @@ static NSString * const XXServiceType = @"InClass-service";
     return sharedManager;
 }
 
+- (MCNearbyServiceBrowser *)browser
+{
+    if (!_browser) {
+        _browser = [[MCNearbyServiceBrowser alloc] initWithPeer:self.localPeerID serviceType:XXServiceType];
+        _browser.delegate = self;
+    }
+    return _browser;
+}
+
 - (instancetype)init
 {
     self = [super init];
     if (self) {
-        [self advertise];
+        [self browse];
     }
     return self;
 }
@@ -52,25 +60,41 @@ static NSString * const XXServiceType = @"InClass-service";
     return _localPeerID;
 }
 
-- (MCNearbyServiceAdvertiser *)advertiser
+- (NSMutableDictionary *)serverPeerIDs
 {
-    if (!_advertiser) {
-        _advertiser = [[MCNearbyServiceAdvertiser alloc] initWithPeer:self.localPeerID
-                                                        discoveryInfo:nil
-                                                          serviceType:XXServiceType];
-        _advertiser.delegate = self;
+    if (!_serverPeerIDs) {
+        _serverPeerIDs = [[NSMutableDictionary alloc] init];
     }
-    return _advertiser;
+    return _serverPeerIDs;
 }
 
-- (MCSession *)session
+#pragma mark - Multipeer browser delegate
+
+- (void)browser:(MCNearbyServiceBrowser *)browser foundPeer:(MCPeerID *)peerID withDiscoveryInfo:(NSDictionary *)info
 {
-    if (!_session) {
-        _session = [[MCSession alloc] initWithPeer:self.localPeerID];
-        _session.delegate = self;
-    }
-    return _session;
+    NSLog(@"==============> %@", @"peer found");
+    
+    MCSession *session = [[MCSession alloc] initWithPeer:self.localPeerID
+                                        securityIdentity:nil
+                                    encryptionPreference:MCEncryptionNone];
+    session.delegate = self;
+    NSLog(@"created session for peer %@", peerID.displayName);
+    
+    [self.serverPeerIDs setObject:session forKey:peerID];
+    
+    // TODO: prevent multiple sessions or invitations to same peer
+    [browser invitePeer:peerID
+              toSession:session
+            withContext:nil
+                timeout:0];
 }
+
+- (void)browser:(MCNearbyServiceBrowser *)browser lostPeer:(MCPeerID *)peerID
+{
+    NSLog(@"==============> %@", @"peer lost");
+    [self disconnectPeer:peerID];
+}
+
 
 // Used for debugging check mark.
 - (void)setServerIsConnected:(BOOL)serverIsConnected
@@ -88,18 +112,7 @@ static NSString * const XXServiceType = @"InClass-service";
     }
 }
 
-- (void)advertiser:(MCNearbyServiceAdvertiser *)advertiser didReceiveInvitationFromPeer:(MCPeerID *)peerID
-       withContext:(NSData *)context invitationHandler:(void(^)(BOOL accept, MCSession *session))invitationHandler
-{
-    NSLog(@"didReceiveInvitationFromPeer, %@", peerID.displayName);
-    if (self.serverPeerID) {
-        NSLog(@"Was already invited, so we'll overwrite...");
-        [self disconnectPeer];
-    }
-    self.serverPeerID = peerID;
-    
-    invitationHandler(YES, self.session);
-}
+
 
 - (void)session:(MCSession *)session didReceiveCertificate:(NSArray *)certificate
        fromPeer:(MCPeerID *)peerID certificateHandler:(void (^)(BOOL))certificateHandler
@@ -113,17 +126,16 @@ static NSString * const XXServiceType = @"InClass-service";
     if (state == MCSessionStateConnected) {
         NSLog(@"MCSessionStateConnected %@", peerID.displayName);
         
-        if (peerID == self.serverPeerID) {
             NSLog(@"Server connected");
             self.serverIsConnected = YES;
-        }
+            //[self.browser stopBrowsingForPeers];
+        
     } else if (state == MCSessionStateNotConnected) {
         NSLog(@"MCSessionStateNotConnected %@", peerID.displayName);
         
-        if (peerID == self.serverPeerID) {
+
             NSLog(@"Server disconnected");
-            [self disconnectPeer];
-        }
+            [self disconnectPeer:peerID];
     } else if (state == MCSessionStateConnecting) {
         NSLog(@"MCSessionStateConnecting %@", peerID.displayName);
     }
@@ -133,8 +145,7 @@ static NSString * const XXServiceType = @"InClass-service";
 {
     NSLog(@"====> Sending data");
     
-    if (!self.session) return;
-    if (!self.serverPeerID) return;
+    if ([self.serverPeerIDs count] == 0) return;
     if (!self.serverIsConnected) return;
     
     // Append bookkeeping fields
@@ -147,17 +158,21 @@ static NSString * const XXServiceType = @"InClass-service";
     
     NSData* data = [NSKeyedArchiver archivedDataWithRootObject:dictMod];
     
-    NSError *error = nil;
-    BOOL result = [self.session sendData:data
-                                 toPeers:@[self.serverPeerID]
-                                withMode:MCSessionSendDataReliable
-                                   error:&error];
-    if (!result) NSLog(@"ERROR: %@", error);
+    // TODO: one send data call to all using toPeers array
+    for (MCPeerID *peerID in self.serverPeerIDs) {
+        NSError *error = nil;
+        MCSession *session = [self.serverPeerIDs objectForKey:peerID];
+        BOOL result = [session sendData:data
+                                toPeers:@[peerID]
+                               withMode:MCSessionSendDataReliable
+                                  error:&error];
+        if (!result) NSLog(@"ERROR: %@", error);
+    }
 }
 
 - (void)session:(MCSession *)session didReceiveData:(NSData *)data fromPeer:(MCPeerID *)peerID
 {
-    if (peerID != self.serverPeerID) {
+    if (![[self.serverPeerIDs allKeys] containsObject:peerID]) {
         NSLog(@"WARN: didReceiveData, but not from server. Ignoring.");
         return;
     }
@@ -171,29 +186,40 @@ static NSString * const XXServiceType = @"InClass-service";
                                                       userInfo:@{kDataKey: data}];
 }
 
-- (void)advertise
+- (void)browse
 {
-    NSLog(@"advertising self...");
-    [self.advertiser startAdvertisingPeer];
+    NSLog(@"==============> %@", @"started browser");
+    [self.browser startBrowsingForPeers];
 }
 
 - (void)disconnect
 {
     NSLog(@"disconnecting self...");
     
-    [self.advertiser stopAdvertisingPeer];
-    self.advertiser = nil;
+    [self.browser stopBrowsingForPeers];
     
-    [self disconnectPeer];
+    for (MCPeerID *peerID in self.serverPeerIDs) {
+        [self disconnectPeer:peerID];
+    }
 }
 
-- (void)disconnectPeer
+- (void)disconnectPeer:(MCPeerID *)peerID
 {
-    [self.session disconnect];
-    self.session = nil;
+    if (![[self.serverPeerIDs allKeys] containsObject:peerID]) {
+        return;
+    }
     
-    self.serverPeerID = nil;
+    NSLog(@"disconnecting %@", peerID.displayName);
+    MCSession *session = [self.serverPeerIDs objectForKey:peerID];
+    
+    [session disconnect];
+    session.delegate = nil;
+    
+    [self.serverPeerIDs removeObjectForKey:peerID];
     self.serverIsConnected = NO;
+    
+    self.browser = nil;
+    [self browse];
 }
 
 #pragma mark - Unused Delegate Methods
