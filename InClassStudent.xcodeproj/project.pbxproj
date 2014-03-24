@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9F3C92B818BF02F4002BEEFB /* MultipeerConnectivity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F3C92B718BF02F4002BEEFB /* MultipeerConnectivity.framework */; };
 		9F4A224018BF00FE00EA90A8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A223F18BF00FE00EA90A8 /* Foundation.framework */; };
 		9F4A224218BF00FE00EA90A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A224118BF00FE00EA90A8 /* CoreGraphics.framework */; };
 		9F4A224418BF00FE00EA90A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A224318BF00FE00EA90A8 /* UIKit.framework */; };
@@ -111,7 +110,6 @@
 				9F8985B118DF92EC0050BDF5 /* Security.framework in Frameworks */,
 				9F8985AF18DF92E70050BDF5 /* CFNetwork.framework in Frameworks */,
 				9F8985AD18DF92D80050BDF5 /* libicucore.dylib in Frameworks */,
-				9F3C92B818BF02F4002BEEFB /* MultipeerConnectivity.framework in Frameworks */,
 				9F4A224218BF00FE00EA90A8 /* CoreGraphics.framework in Frameworks */,
 				9F4A224418BF00FE00EA90A8 /* UIKit.framework in Frameworks */,
 				9F4A224018BF00FE00EA90A8 /* Foundation.framework in Frameworks */,
