@@ -8,18 +8,23 @@
 
 #import <Foundation/Foundation.h>
 
-@interface ICSMultipeerManager : NSObject
+@interface ICSRemoteClient : NSObject
 
-#define kDataReceivedFromServerNotification @"DataReceivedFromServer"
+#define kServer @"107.170.218.132"
+// Dev is 1337, Prod is 80
+#define kServerPort 80
+#define kConceptReceivedFromServerNotification @"ConceptReceivedFromServer"
 #define kServerDisconnected @"ServerDisconnected"
 #define kServerConnected @"ServerConnected"
 #define kDataKey @"Data"
+#define kMaxNumRetries 3
+#define kRetryIntervalInSecs 10
 
 // Returns the singleton instance
 + (id)sharedManager;
 
-- (void)sendDict:(NSDictionary *)dict;
-- (void)browse;
+- (void)sendEvent:(NSString *)event withData:(NSDictionary *)dict;
+- (void)connect;
 - (void)disconnect;
 
 @end

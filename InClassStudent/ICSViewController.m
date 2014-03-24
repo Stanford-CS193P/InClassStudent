@@ -7,7 +7,7 @@
 //
 
 #import "ICSViewController.h"
-#import "ICSMultipeerManager.h"
+#import "ICSRemoteClient.h"
 #import "ICSConceptRating.h"
 
 #define FONT_SIZE 20.0
@@ -69,7 +69,7 @@
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveData:)
-                                                 name:kDataReceivedFromServerNotification
+                                                 name:kConceptReceivedFromServerNotification
                                                object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -103,10 +103,9 @@
 {
     NSString *name = [notification name];
     
-    if ([name isEqualToString:kDataReceivedFromServerNotification]) {
-        NSData *data = [[notification userInfo] valueForKey:kDataKey];
-        if (!data) return;
-        NSString *dataStr = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    if ([name isEqualToString:kConceptReceivedFromServerNotification]) {
+        NSString *dataStr = [[notification userInfo] valueForKey:kDataKey];
+        if (!dataStr) return;
         NSLog(@"dataStr %@", dataStr);
         dispatch_async(dispatch_get_main_queue(), ^{
             [self showNewConcept:dataStr];
@@ -147,8 +146,8 @@
             forTouchPosition:location];
     [self pulseView:self.understandingIndicator];
     
-    [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"GeneralRating",
-                                                    @"rating": @([self levelRatingOfUnderstandingIndicator])}];
+    [[ICSRemoteClient sharedManager] sendEvent:@"CreateRating"
+                                      withData:@{@"rating": @([self levelRatingOfUnderstandingIndicator])}];
  
     [self updateGeneralUnderstandingLevelLayoutConstraint];
 }
@@ -215,9 +214,8 @@
     [self updateLevelLayoutConstraint:cR];
     
     // TODO: queue up responses in case of network failure
-    [[ICSMultipeerManager sharedManager] sendDict:@{@"type": @"ConceptRating",
-                                                    @"text": cR.conceptName,
-                                                    @"rating": @(cR.rating)}];
+    [[ICSRemoteClient sharedManager] sendEvent:@"CreateRating"
+                                      withData:@{@"rating": @(cR.rating)}];
 }
 
 - (void)pulseView:(UIView *)view
