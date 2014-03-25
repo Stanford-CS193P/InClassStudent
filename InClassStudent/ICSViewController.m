@@ -8,7 +8,7 @@
 
 #import "ICSViewController.h"
 #import "ICSRemoteClient.h"
-#import "ICSConceptRating.h"
+#import "TaggedTimestampedDouble.h"
 #import "ICSUnderstandingIndicator.h"
 
 #define FONT_SIZE 20.0
@@ -22,29 +22,20 @@
 @property (weak, nonatomic) IBOutlet UIImageView *connectedIndicator;
 @property (weak, nonatomic) IBOutlet UIView *conceptRegion;
 
-@property (nonatomic, strong) ICSUnderstandingIndicator *understandingIndicator;
+@property (nonatomic, strong) IBOutlet ICSUnderstandingIndicator *understandingIndicator;
 
-@property (nonatomic, strong) NSMutableArray *outgoingQueue;
-@property (nonatomic, strong) NSMutableArray *conceptRatings; // of ICSConceptRating
+@property (nonatomic, strong) NSMutableArray *outgoingRatingsQueue; //of TaggedTimestampDouble
 
 @end
 
 @implementation ICSViewController
 
-- (NSMutableArray *)outgoingQueue
+- (NSMutableArray *)outgoingRatingsQueue
 {
-    if (!_outgoingQueue) {
-        _outgoingQueue = [[NSMutableArray alloc] init];
+    if (!_outgoingRatingsQueue) {
+        _outgoingRatingsQueue = [[NSMutableArray alloc] init];
     }
-    return _outgoingQueue;
-}
-
-- (NSMutableArray *)conceptRatings
-{
-    if (!_conceptRatings) {
-        _conceptRatings = [[NSMutableArray alloc] init];
-    }
-    return _conceptRatings;
+    return _outgoingRatingsQueue;
 }
 
 - (void)viewDidLoad
@@ -65,42 +56,26 @@
                                              selector:@selector(serverDidConnect)
                                                  name:kServerConnected
                                                object:nil];
-    
-    [self setUpUnderstandingIndicator];
 }
 
-- (void)setUpUnderstandingIndicator
-{
-    self.understandingIndicator = [[ICSUnderstandingIndicator alloc] init];
-    [self.conceptRegion addSubview:self.understandingIndicator];
-    [self.understandingIndicator viewHasSuperView];
-    
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(understandingIndicatorTap:)];
-    [self.understandingIndicator addGestureRecognizer:tapGesture];
-    
-    UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(understandingIndicatorPan:)];
-    [self.understandingIndicator addGestureRecognizer:panGesture];
-}
+#pragma mark - Touch
 
-- (void)understandingIndicatorTap:(UITapGestureRecognizer *)sender
+- (IBAction)understandingIndicatorTap:(UITapGestureRecognizer *)sender
 {
     self.understandingIndicator.touchLocation = [sender locationInView:self.understandingIndicator];
-    [[ICSRemoteClient sharedManager] sendEvent:@"CreateRating"
-                                      withData:@{@"rating": @(self.understandingIndicator.touchFraction)}];
-
+    [self sendFeedback];
 }
 
-- (void)understandingIndicatorPan:(UIPanGestureRecognizer *)sender
+- (IBAction)understandingIndicatorPan:(UIPanGestureRecognizer *)sender
 {
     self.understandingIndicator.touchLocation = [sender locationInView:self.understandingIndicator];
     
-    if (sender.state == UIGestureRecognizerStateBegan) {
-        
-    } else if (sender.state == UIGestureRecognizerStateEnded) {
-        [[ICSRemoteClient sharedManager] sendEvent:@"CreateRating"
-                                          withData:@{@"rating": @(self.understandingIndicator.touchFraction)}];
+    if (sender.state == UIGestureRecognizerStateEnded) {
+        [self sendFeedback];
     }
 }
+
+#pragma mark - Server notifications
 
 - (void)serverDidDisconnect
 {
@@ -114,6 +89,8 @@
     dispatch_async(dispatch_get_main_queue(), ^{
         self.connectedIndicator.hidden = NO;
     });
+    
+    [self.outgoingRatingsQueue makeObjectsPerformSelector:@selector(send)];
 }
 
 - (void)didReceiveData:(NSNotification *)notification
@@ -128,6 +105,16 @@
             self.conceptLabel.text = dataStr;
         });
     }
+}
+
+- (void)sendFeedback
+{
+    TaggedTimestampedDouble *ttd = [[TaggedTimestampedDouble alloc] initWithDouble:self.understandingIndicator.touchFraction
+                                                                            andTag:self.conceptLabel.text];
+    if ([[ICSRemoteClient sharedManager] serverIsConnected])
+        [ttd send];
+    else
+        [self.outgoingRatingsQueue addObject:ttd];
 }
 
 @end

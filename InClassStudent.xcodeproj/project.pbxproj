@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5CBFA02718E14EE800538766 /* TaggedTimestampedDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = 5CBFA02418E14EE800538766 /* TaggedTimestampedDouble.m */; };
+		5CBFA02818E14EE800538766 /* TimestampedDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = 5CBFA02618E14EE800538766 /* TimestampedDouble.m */; };
 		9F4A224018BF00FE00EA90A8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A223F18BF00FE00EA90A8 /* Foundation.framework */; };
 		9F4A224218BF00FE00EA90A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A224118BF00FE00EA90A8 /* CoreGraphics.framework */; };
 		9F4A224418BF00FE00EA90A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A224318BF00FE00EA90A8 /* UIKit.framework */; };
@@ -37,7 +39,6 @@
 		9F89865718E0B6870050BDF5 /* NSData+SRB64Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F89864B18E0B6870050BDF5 /* NSData+SRB64Additions.m */; };
 		9F89865818E0B6870050BDF5 /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F89864E18E0B6870050BDF5 /* SRWebSocket.m */; settings = {COMPILER_FLAGS = "-w"; }; };
 		9F9E4D9C18E103F400768F94 /* ICSUnderstandingIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F9E4D9B18E103F400768F94 /* ICSUnderstandingIndicator.m */; };
-		9FEC05DB18DC01D9002ED180 /* ICSConceptRating.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC05DA18DC01D9002ED180 /* ICSConceptRating.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5CBFA02318E14EE800538766 /* TaggedTimestampedDouble.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaggedTimestampedDouble.h; sourceTree = "<group>"; };
+		5CBFA02418E14EE800538766 /* TaggedTimestampedDouble.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TaggedTimestampedDouble.m; sourceTree = "<group>"; };
+		5CBFA02518E14EE800538766 /* TimestampedDouble.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimestampedDouble.h; sourceTree = "<group>"; };
+		5CBFA02618E14EE800538766 /* TimestampedDouble.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimestampedDouble.m; sourceTree = "<group>"; };
 		9F3C92B718BF02F4002BEEFB /* MultipeerConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MultipeerConnectivity.framework; path = System/Library/Frameworks/MultipeerConnectivity.framework; sourceTree = SDKROOT; };
 		9F4A223C18BF00FE00EA90A8 /* InClassStudent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InClassStudent.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F4A223F18BF00FE00EA90A8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -101,8 +106,6 @@
 		9F89864E18E0B6870050BDF5 /* SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRWebSocket.m; sourceTree = "<group>"; };
 		9F9E4D9A18E103F400768F94 /* ICSUnderstandingIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICSUnderstandingIndicator.h; sourceTree = "<group>"; };
 		9F9E4D9B18E103F400768F94 /* ICSUnderstandingIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICSUnderstandingIndicator.m; sourceTree = "<group>"; };
-		9FEC05D918DC01D9002ED180 /* ICSConceptRating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICSConceptRating.h; sourceTree = "<group>"; };
-		9FEC05DA18DC01D9002ED180 /* ICSConceptRating.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICSConceptRating.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +135,37 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5CBFA02018E14B3900538766 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				5CBFA02318E14EE800538766 /* TaggedTimestampedDouble.h */,
+				5CBFA02418E14EE800538766 /* TaggedTimestampedDouble.m */,
+				5CBFA02518E14EE800538766 /* TimestampedDouble.h */,
+				5CBFA02618E14EE800538766 /* TimestampedDouble.m */,
+				9F6A725F18C594D200DF00FE /* ICSRemoteClient.h */,
+				9F6A726018C594D200DF00FE /* ICSRemoteClient.m */,
+			);
+			name = Model;
+			sourceTree = "<group>";
+		};
+		5CBFA02118E14B4200538766 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9F9E4D9A18E103F400768F94 /* ICSUnderstandingIndicator.h */,
+				9F9E4D9B18E103F400768F94 /* ICSUnderstandingIndicator.m */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		5CBFA02218E14B4D00538766 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				9F4A225718BF00FE00EA90A8 /* ICSViewController.h */,
+				9F4A225818BF00FE00EA90A8 /* ICSViewController.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
 		9F4A223318BF00FE00EA90A8 = {
 			isa = PBXGroup;
 			children = (
@@ -169,18 +203,11 @@
 		9F4A224518BF00FE00EA90A8 /* InClassStudent */ = {
 			isa = PBXGroup;
 			children = (
-				9F4A224E18BF00FE00EA90A8 /* AppDelegate.h */,
-				9F4A224F18BF00FE00EA90A8 /* AppDelegate.m */,
+				5CBFA02218E14B4D00538766 /* Controllers */,
+				5CBFA02118E14B4200538766 /* Views */,
+				5CBFA02018E14B3900538766 /* Model */,
 				9F4A225118BF00FE00EA90A8 /* Main_iPhone.storyboard */,
 				9F4A225418BF00FE00EA90A8 /* Main_iPad.storyboard */,
-				9F4A225718BF00FE00EA90A8 /* ICSViewController.h */,
-				9F4A225818BF00FE00EA90A8 /* ICSViewController.m */,
-				9F9E4D9A18E103F400768F94 /* ICSUnderstandingIndicator.h */,
-				9F9E4D9B18E103F400768F94 /* ICSUnderstandingIndicator.m */,
-				9FEC05D918DC01D9002ED180 /* ICSConceptRating.h */,
-				9FEC05DA18DC01D9002ED180 /* ICSConceptRating.m */,
-				9F6A725F18C594D200DF00FE /* ICSRemoteClient.h */,
-				9F6A726018C594D200DF00FE /* ICSRemoteClient.m */,
 				9F4A225A18BF00FE00EA90A8 /* Images.xcassets */,
 				9F89863518E0B6870050BDF5 /* SocketLib */,
 				9F4A224618BF00FE00EA90A8 /* Supporting Files */,
@@ -191,6 +218,8 @@
 		9F4A224618BF00FE00EA90A8 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				9F4A224E18BF00FE00EA90A8 /* AppDelegate.h */,
+				9F4A224F18BF00FE00EA90A8 /* AppDelegate.m */,
 				9F4A224718BF00FE00EA90A8 /* InClassStudent-Info.plist */,
 				9F4A224818BF00FE00EA90A8 /* InfoPlist.strings */,
 				9F4A224B18BF00FE00EA90A8 /* main.m */,
@@ -373,10 +402,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				9F89864F18E0B6870050BDF5 /* NSString+TrimmingAdditions.m in Sources */,
+				5CBFA02718E14EE800538766 /* TaggedTimestampedDouble.m in Sources */,
 				9F4A225918BF00FE00EA90A8 /* ICSViewController.m in Sources */,
 				9F89865318E0B6870050BDF5 /* SocketIOPacket.m in Sources */,
 				9F6A726118C594D200DF00FE /* ICSRemoteClient.m in Sources */,
-				9FEC05DB18DC01D9002ED180 /* ICSConceptRating.m in Sources */,
+				5CBFA02818E14EE800538766 /* TimestampedDouble.m in Sources */,
 				9F89865518E0B6870050BDF5 /* SocketIOTransportXHR.m in Sources */,
 				9F4A225018BF00FE00EA90A8 /* AppDelegate.m in Sources */,
 				9F89865018E0B6870050BDF5 /* SocketIO+SailsIO.m in Sources */,

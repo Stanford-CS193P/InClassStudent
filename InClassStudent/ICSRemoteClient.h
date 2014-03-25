@@ -27,4 +27,6 @@
 - (void)connect;
 - (void)disconnect;
 
+@property (nonatomic) BOOL serverIsConnected;
+
 @end

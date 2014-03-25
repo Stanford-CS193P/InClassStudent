@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5053" systemVersion="13C64" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5053" systemVersion="12F45" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
@@ -14,15 +14,24 @@
                         <viewControllerLayoutGuide type="bottom" id="MBa-cr-TZS"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="kh9-bI-dsS">
-                        <rect key="frame" x="0.0" y="0.0" width="568" height="320"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="brG-ZN-i6Z" userLabel="ConceptRegion">
-                                <rect key="frame" x="0.0" y="132" width="568" height="128"/>
+                                <rect key="frame" x="0.0" y="281" width="320" height="227"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="67v-OT-1vb" userLabel="Indicator view" customClass="ICSUnderstandingIndicator">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="227"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <gestureRecognizers/>
+                                        <connections>
+                                            <outletCollection property="gestureRecognizers" destination="61E-jH-aI2" appends="YES" id="iEf-Mh-C1I"/>
+                                            <outletCollection property="gestureRecognizers" destination="XrO-cF-Jg9" appends="YES" id="L8H-cT-DcC"/>
+                                        </connections>
+                                    </view>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="I get it!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="q5P-Jx-PWr">
-                                        <rect key="frame" x="0.0" y="0.0" width="568" height="60"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="60"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="60" id="MyQ-Th-adq"/>
@@ -32,7 +41,7 @@
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="I don't get it!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QVv-zL-ES5">
-                                        <rect key="frame" x="0.0" y="68" width="568" height="60"/>
+                                        <rect key="frame" x="0.0" y="167" width="320" height="60"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="60" id="Mcp-Jm-RV6"/>
@@ -47,8 +56,12 @@
                                     <constraint firstAttribute="trailing" secondItem="QVv-zL-ES5" secondAttribute="trailing" id="8Wc-tw-d2N"/>
                                     <constraint firstAttribute="trailing" secondItem="q5P-Jx-PWr" secondAttribute="trailing" id="9O5-BL-LQq"/>
                                     <constraint firstAttribute="bottom" secondItem="QVv-zL-ES5" secondAttribute="bottom" id="Fud-eE-R1S"/>
+                                    <constraint firstItem="67v-OT-1vb" firstAttribute="top" secondItem="q5P-Jx-PWr" secondAttribute="top" id="IHO-qC-i6C"/>
+                                    <constraint firstItem="67v-OT-1vb" firstAttribute="height" secondItem="brG-ZN-i6Z" secondAttribute="height" id="SzD-j7-yxl"/>
+                                    <constraint firstItem="67v-OT-1vb" firstAttribute="leading" secondItem="QVv-zL-ES5" secondAttribute="leading" id="XQD-4f-ZJC"/>
                                     <constraint firstItem="q5P-Jx-PWr" firstAttribute="leading" secondItem="brG-ZN-i6Z" secondAttribute="leading" id="qZL-pn-hyf"/>
                                     <constraint firstItem="q5P-Jx-PWr" firstAttribute="top" secondItem="brG-ZN-i6Z" secondAttribute="top" id="ugA-Ge-wwB"/>
+                                    <constraint firstItem="67v-OT-1vb" firstAttribute="width" secondItem="brG-ZN-i6Z" secondAttribute="width" id="wSf-vF-gwO"/>
                                     <constraint firstItem="QVv-zL-ES5" firstAttribute="leading" secondItem="brG-ZN-i6Z" secondAttribute="leading" id="xC9-8T-SQ8"/>
                                 </constraints>
                             </view>
@@ -56,8 +69,8 @@
                                 <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="8" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="528" translatesAutoresizingMaskIntoConstraints="NO" id="YWy-gO-v3E">
-                                <rect key="frame" x="20" y="8" width="528" height="116"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="8" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="YWy-gO-v3E">
+                                <rect key="frame" x="20" y="8" width="280" height="265"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" name="AvenirNext-Bold" family="Avenir Next" pointSize="24"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
@@ -76,19 +89,29 @@
                             <constraint firstItem="brG-ZN-i6Z" firstAttribute="top" secondItem="YWy-gO-v3E" secondAttribute="bottom" constant="8" symbolic="YES" id="tZF-Z1-nw7"/>
                             <constraint firstAttribute="bottom" secondItem="brG-ZN-i6Z" secondAttribute="bottom" constant="60" id="xJf-lq-6wV"/>
                         </constraints>
-                        <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     </view>
                     <nil key="simulatedStatusBarMetrics"/>
                     <nil key="simulatedTopBarMetrics"/>
                     <nil key="simulatedBottomBarMetrics"/>
-                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics"/>
                     <connections>
                         <outlet property="conceptLabel" destination="YWy-gO-v3E" id="6pf-GN-e50"/>
                         <outlet property="conceptRegion" destination="brG-ZN-i6Z" id="MoE-3u-3hG"/>
                         <outlet property="connectedIndicator" destination="uQn-b9-FJL" id="fmv-oS-n6d"/>
+                        <outlet property="understandingIndicator" destination="67v-OT-1vb" id="qcd-FS-wsn"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
+                <panGestureRecognizer minimumNumberOfTouches="1" id="61E-jH-aI2">
+                    <connections>
+                        <action selector="understandingIndicatorPan:" destination="vXZ-lx-hvc" id="mj8-28-AEs"/>
+                    </connections>
+                </panGestureRecognizer>
+                <tapGestureRecognizer id="XrO-cF-Jg9">
+                    <connections>
+                        <action selector="understandingIndicatorTap:" destination="vXZ-lx-hvc" id="ABX-bQ-e61"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="262" y="187"/>
         </scene>

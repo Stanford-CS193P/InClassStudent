@@ -36,44 +36,6 @@
 - (void)viewHasSuperView
 {
     [self.superview sendSubviewToBack:self];
-    [self setUpAutoLayout];
-}
-
-- (void)setUpAutoLayout
-{
-    self.translatesAutoresizingMaskIntoConstraints = NO;
-    
-    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.superview
-                                                               attribute:NSLayoutAttributeLeft
-                                                               relatedBy:NSLayoutRelationEqual
-                                                                  toItem:self
-                                                               attribute:NSLayoutAttributeLeft
-                                                              multiplier:1
-                                                                constant:0]];
-    
-    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.superview
-                                                               attribute:NSLayoutAttributeRight
-                                                               relatedBy:NSLayoutRelationEqual
-                                                                  toItem:self
-                                                               attribute:NSLayoutAttributeRight
-                                                              multiplier:1
-                                                                constant:0]];
-    
-    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.superview
-                                                               attribute:NSLayoutAttributeHeight
-                                                               relatedBy:NSLayoutRelationEqual
-                                                                  toItem:self
-                                                               attribute:NSLayoutAttributeHeight
-                                                              multiplier:1
-                                                                constant:0]];
-    
-    [self.superview addConstraint:[NSLayoutConstraint constraintWithItem:self.superview
-                                                               attribute:NSLayoutAttributeCenterY
-                                                               relatedBy:NSLayoutRelationEqual
-                                                                  toItem:self
-                                                               attribute:NSLayoutAttributeCenterY
-                                                              multiplier:1
-                                                                constant:0]];
 }
 
 - (void)drawRect:(CGRect)rect
@@ -124,9 +86,6 @@
         UIRectFill(CGRectMake(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, height1));
         UIRectFill(CGRectMake(self.bounds.origin.x, y2, self.bounds.size.width, height2));
     }
-    
-    
-
     
 }
 

@@ -13,7 +13,6 @@
 
 @interface ICSRemoteClient()<SocketIODelegate, NSURLConnectionDelegate>
 
-@property (nonatomic) BOOL serverIsConnected;
 @property (nonatomic, strong) SocketIO *socketIO;
 @property (nonatomic, strong) NSURL *serverURL;
 @property (nonatomic, strong) NSDictionary *eventToURLMap;
@@ -149,7 +148,10 @@
     
     NSLog(@"INFO: sendDict %@", dictMod);
     NSString *url = self.eventToURLMap[event];
-    [self.socketIO get:url withData:dictMod callback:^(id response) {
+
+    [self.socketIO get:url
+              withData:dictMod
+              callback:^(id response) {
         NSLog(@"%@ response: %@", url, response);
     }];
 }
