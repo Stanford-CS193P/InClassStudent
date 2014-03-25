@@ -36,6 +36,7 @@
 		9F89865618E0B6870050BDF5 /* base64.c in Sources */ = {isa = PBXBuildFile; fileRef = 9F89864818E0B6870050BDF5 /* base64.c */; };
 		9F89865718E0B6870050BDF5 /* NSData+SRB64Additions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F89864B18E0B6870050BDF5 /* NSData+SRB64Additions.m */; };
 		9F89865818E0B6870050BDF5 /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F89864E18E0B6870050BDF5 /* SRWebSocket.m */; settings = {COMPILER_FLAGS = "-w"; }; };
+		9F9E4D9C18E103F400768F94 /* ICSUnderstandingIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F9E4D9B18E103F400768F94 /* ICSUnderstandingIndicator.m */; };
 		9FEC05DB18DC01D9002ED180 /* ICSConceptRating.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FEC05DA18DC01D9002ED180 /* ICSConceptRating.m */; };
 /* End PBXBuildFile section */
 
@@ -98,6 +99,8 @@
 		9F89864C18E0B6870050BDF5 /* SocketRocket-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SocketRocket-Prefix.pch"; sourceTree = "<group>"; };
 		9F89864D18E0B6870050BDF5 /* SRWebSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SRWebSocket.h; sourceTree = "<group>"; };
 		9F89864E18E0B6870050BDF5 /* SRWebSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SRWebSocket.m; sourceTree = "<group>"; };
+		9F9E4D9A18E103F400768F94 /* ICSUnderstandingIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICSUnderstandingIndicator.h; sourceTree = "<group>"; };
+		9F9E4D9B18E103F400768F94 /* ICSUnderstandingIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICSUnderstandingIndicator.m; sourceTree = "<group>"; };
 		9FEC05D918DC01D9002ED180 /* ICSConceptRating.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICSConceptRating.h; sourceTree = "<group>"; };
 		9FEC05DA18DC01D9002ED180 /* ICSConceptRating.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICSConceptRating.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -170,12 +173,14 @@
 				9F4A224F18BF00FE00EA90A8 /* AppDelegate.m */,
 				9F4A225118BF00FE00EA90A8 /* Main_iPhone.storyboard */,
 				9F4A225418BF00FE00EA90A8 /* Main_iPad.storyboard */,
-				9F6A725F18C594D200DF00FE /* ICSRemoteClient.h */,
-				9F6A726018C594D200DF00FE /* ICSRemoteClient.m */,
 				9F4A225718BF00FE00EA90A8 /* ICSViewController.h */,
 				9F4A225818BF00FE00EA90A8 /* ICSViewController.m */,
+				9F9E4D9A18E103F400768F94 /* ICSUnderstandingIndicator.h */,
+				9F9E4D9B18E103F400768F94 /* ICSUnderstandingIndicator.m */,
 				9FEC05D918DC01D9002ED180 /* ICSConceptRating.h */,
 				9FEC05DA18DC01D9002ED180 /* ICSConceptRating.m */,
+				9F6A725F18C594D200DF00FE /* ICSRemoteClient.h */,
+				9F6A726018C594D200DF00FE /* ICSRemoteClient.m */,
 				9F4A225A18BF00FE00EA90A8 /* Images.xcassets */,
 				9F89863518E0B6870050BDF5 /* SocketLib */,
 				9F4A224618BF00FE00EA90A8 /* Supporting Files */,
@@ -375,6 +380,7 @@
 				9F89865518E0B6870050BDF5 /* SocketIOTransportXHR.m in Sources */,
 				9F4A225018BF00FE00EA90A8 /* AppDelegate.m in Sources */,
 				9F89865018E0B6870050BDF5 /* SocketIO+SailsIO.m in Sources */,
+				9F9E4D9C18E103F400768F94 /* ICSUnderstandingIndicator.m in Sources */,
 				9F89865718E0B6870050BDF5 /* NSData+SRB64Additions.m in Sources */,
 				9F89865418E0B6870050BDF5 /* SocketIOTransportWebsocket.m in Sources */,
 				9F89865118E0B6870050BDF5 /* SocketIO.m in Sources */,
