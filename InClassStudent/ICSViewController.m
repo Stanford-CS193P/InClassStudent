@@ -91,6 +91,7 @@
     });
     
     [self.outgoingRatingsQueue makeObjectsPerformSelector:@selector(send)];
+    [self.outgoingRatingsQueue removeAllObjects];
 }
 
 - (void)didReceiveData:(NSNotification *)notification
