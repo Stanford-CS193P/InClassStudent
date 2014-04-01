@@ -101,19 +101,19 @@
     [self reconnect];
 }
 
-- (void) socketIO:(SocketIO *)socket didReceiveEvent:(SocketIOPacket *)packet
+- (void)socketIO:(SocketIO *)socket didReceiveJSON:(SocketIOPacket *)packet
 {
-    NSDictionary *data = [packet dataAsJSON];
-    NSLog(@"didReceiveEvent >>> data: %@", data);
+    NSDictionary *packetData = [packet dataAsJSON];
+    NSLog(@"didReceiveJSON %@", packetData);
     
-    NSString *eventName = [data objectForKey:@"name"];
+    NSString *model = [packetData objectForKey:@"model"];
+    NSString *verb = [packetData objectForKey:@"verb"];
+    NSDictionary *data = [packetData objectForKey:@"data"];
     
-    if ([eventName isEqualToString:@"NewConcept"]) {
-        NSString *concept = [[[[data objectForKey:@"args"] firstObject] objectForKey:@"concept"] objectForKey:@"conceptName"];
-        
+    if ([model isEqualToString:@"inclassconcept"] && [verb isEqualToString:@"create"]) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kConceptReceivedFromServerNotification
                                                             object:self
-                                                          userInfo:@{kDataKey: concept}];
+                                                          userInfo:@{kDataKey: data}];
     }
 }
 
@@ -133,7 +133,7 @@
     }
 }
 
-- (void)sendEvent:(NSString *)event withData:(NSDictionary *)dict
+- (void)sendEvent:(NSString *)event withData:(NSDictionary *)dict andCallback:(void (^)(id response))callback
 {
     if (![[self.eventToURLMap allKeys] containsObject:event]) {
         NSLog(@"event %@ not valid", event);
@@ -148,12 +148,13 @@
     
     NSLog(@"INFO: sendDict %@", dictMod);
     NSString *url = self.eventToURLMap[event];
-
+    
     [self.socketIO get:url
               withData:dictMod
               callback:^(id response) {
-        NSLog(@"%@ response: %@", url, response);
-    }];
+                  if (callback) callback(response);
+                  NSLog(@"%@ response: %@", url, response);
+              }];
 }
 
 - (void)reconnect

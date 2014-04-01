@@ -26,6 +26,9 @@
 
 @property (nonatomic, strong) NSMutableArray *outgoingRatingsQueue; //of TaggedTimestampDouble
 
+@property (nonatomic, strong) NSString *currentConceptName;
+@property (nonatomic, strong) NSString *currentConceptID;
+
 @end
 
 @implementation ICSViewController
@@ -99,19 +102,28 @@
     NSString *name = [notification name];
     
     if ([name isEqualToString:kConceptReceivedFromServerNotification]) {
-        NSString *dataStr = [[notification userInfo] valueForKey:kDataKey];
-        if (!dataStr) return;
-        NSLog(@"dataStr %@", dataStr);
+        NSDictionary *data = [[notification userInfo] valueForKey:kDataKey];
+        NSString *conceptName = [data objectForKey:@"conceptName"];
+        NSString *conceptID = [data objectForKey:@"id"];
+        
+        self.currentConceptName = conceptName;
+        self.currentConceptID = conceptID;
+        
+        NSLog(@"conceptName %@", conceptName);
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.conceptLabel.text = dataStr;
+            self.conceptLabel.text = conceptName;
         });
     }
 }
 
 - (void)sendFeedback
 {
+    // Only allow users to send feedback when there is a word on screen
+    if (!self.currentConceptID) return;
+    
     TaggedTimestampedDouble *ttd = [[TaggedTimestampedDouble alloc] initWithDouble:self.understandingIndicator.touchFraction
-                                                                            andTag:self.conceptLabel.text];
+                                                                            andTag:self.currentConceptName
+                                                                             andID:self.currentConceptID];
     if ([[ICSRemoteClient sharedManager] serverIsConnected])
         [ttd send];
     else

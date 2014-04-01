@@ -45,21 +45,35 @@
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:request options:0 error:nil];
     NSString *json = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     
-    if(json){
+    if (json) {
         
-        [self sendEvent:method withData:json andAcknowledge:^(id argsData) {
-            if ([argsData isKindOfClass:[NSNull class]]) {
+        [self sendEvent:method withData:json andAcknowledge:^(id data) {
+            if ([data isKindOfClass:[NSString class]]) {
+                NSData *json = [data dataUsingEncoding:NSUTF8StringEncoding];
+                NSError *error;
+                data = [NSJSONSerialization JSONObjectWithData:json options:0 error:&error];
+                if (error) {
+                    NSLog(@"error %@", error);
+                    callback(nil);
+                    return;
+                }
+            }
+            
+            if ([data isKindOfClass:[NSDictionary class]]) {
+                NSDictionary *validationError = [data objectForKey:@"ValidationError"];
+                if (validationError) {
+                    callback(nil);
+                    return;
+                }
+            }
+            
+            if ([data isKindOfClass:[NSNull class]]) {
                 callback(nil);
                 return;
             }
             
-            NSData *json = [argsData dataUsingEncoding:NSUTF8StringEncoding];
-            NSError *error;
-            
-            id data = [NSJSONSerialization JSONObjectWithData:json options:0 error:&error];
             
             callback(data);
-            
         }];
         
     }
