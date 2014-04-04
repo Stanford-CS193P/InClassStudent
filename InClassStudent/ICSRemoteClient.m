@@ -60,7 +60,8 @@
 {
     if (!_eventToURLMap) {
         _eventToURLMap = @{
-                           @"CreateRating": @"/InClassStudentResponse/create"
+                           @"CreateRating": @"/InClassStudentResponse/create",
+                           @"CreateQuestionResponse": @"/InClassQuestionResponse/create"
                            };
     }
     return _eventToURLMap;
@@ -101,10 +102,18 @@
     [self reconnect];
 }
 
+- (void) socketIO:(SocketIO *)socket didReceiveEvent:(SocketIOPacket *)packet {
+    [self handleIncomingData:[[[packet dataAsJSON] objectForKey:@"args"] firstObject]];
+}
+
 - (void)socketIO:(SocketIO *)socket didReceiveJSON:(SocketIOPacket *)packet
 {
-    NSDictionary *packetData = [packet dataAsJSON];
-    NSLog(@"didReceiveJSON %@", packetData);
+    [self handleIncomingData:[packet dataAsJSON]];
+}
+
+- (void)handleIncomingData:(NSDictionary *)packetData
+{
+    NSLog(@"packetData %@", packetData);
     
     NSString *model = [packetData objectForKey:@"model"];
     NSString *verb = [packetData objectForKey:@"verb"];
@@ -112,6 +121,12 @@
     
     if ([model isEqualToString:@"inclassconcept"] && [verb isEqualToString:@"create"]) {
         [[NSNotificationCenter defaultCenter] postNotificationName:kConceptReceivedFromServerNotification
+                                                            object:self
+                                                          userInfo:@{kDataKey: data}];
+    }
+    
+    if ([model isEqualToString:@"inclassquestion"] && [verb isEqualToString:@"create"]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kQuestionReceivedFromServerNotification
                                                             object:self
                                                           userInfo:@{kDataKey: data}];
     }

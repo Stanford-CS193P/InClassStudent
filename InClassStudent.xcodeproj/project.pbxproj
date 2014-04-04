@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		5CBFA02718E14EE800538766 /* TaggedTimestampedDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = 5CBFA02418E14EE800538766 /* TaggedTimestampedDouble.m */; };
 		5CBFA02818E14EE800538766 /* TimestampedDouble.m in Sources */ = {isa = PBXBuildFile; fileRef = 5CBFA02618E14EE800538766 /* TimestampedDouble.m */; };
+		9F289FCD18EA881E007D1D06 /* ICSQuestionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F289FCC18EA881E007D1D06 /* ICSQuestionViewController.m */; };
 		9F4A224018BF00FE00EA90A8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A223F18BF00FE00EA90A8 /* Foundation.framework */; };
 		9F4A224218BF00FE00EA90A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A224118BF00FE00EA90A8 /* CoreGraphics.framework */; };
 		9F4A224418BF00FE00EA90A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F4A224318BF00FE00EA90A8 /* UIKit.framework */; };
@@ -56,6 +57,8 @@
 		5CBFA02418E14EE800538766 /* TaggedTimestampedDouble.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TaggedTimestampedDouble.m; sourceTree = "<group>"; };
 		5CBFA02518E14EE800538766 /* TimestampedDouble.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TimestampedDouble.h; sourceTree = "<group>"; };
 		5CBFA02618E14EE800538766 /* TimestampedDouble.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TimestampedDouble.m; sourceTree = "<group>"; };
+		9F289FCB18EA881E007D1D06 /* ICSQuestionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICSQuestionViewController.h; sourceTree = "<group>"; };
+		9F289FCC18EA881E007D1D06 /* ICSQuestionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICSQuestionViewController.m; sourceTree = "<group>"; };
 		9F3C92B718BF02F4002BEEFB /* MultipeerConnectivity.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MultipeerConnectivity.framework; path = System/Library/Frameworks/MultipeerConnectivity.framework; sourceTree = SDKROOT; };
 		9F4A223C18BF00FE00EA90A8 /* InClassStudent.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = InClassStudent.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F4A223F18BF00FE00EA90A8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -162,6 +165,8 @@
 			children = (
 				9F4A225718BF00FE00EA90A8 /* ICSViewController.h */,
 				9F4A225818BF00FE00EA90A8 /* ICSViewController.m */,
+				9F289FCB18EA881E007D1D06 /* ICSQuestionViewController.h */,
+				9F289FCC18EA881E007D1D06 /* ICSQuestionViewController.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -413,6 +418,7 @@
 				9F9E4D9C18E103F400768F94 /* ICSUnderstandingIndicator.m in Sources */,
 				9F89865718E0B6870050BDF5 /* NSData+SRB64Additions.m in Sources */,
 				9F89865418E0B6870050BDF5 /* SocketIOTransportWebsocket.m in Sources */,
+				9F289FCD18EA881E007D1D06 /* ICSQuestionViewController.m in Sources */,
 				9F89865118E0B6870050BDF5 /* SocketIO.m in Sources */,
 				9F89865618E0B6870050BDF5 /* base64.c in Sources */,
 				9F89865818E0B6870050BDF5 /* SRWebSocket.m in Sources */,

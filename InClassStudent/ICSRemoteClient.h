@@ -10,10 +10,13 @@
 
 @interface ICSRemoteClient : NSObject
 
-#define kServer @"cs193p.herokuapp.com"
-#define kServerPort 80
+//#define kServer @"cs193p.herokuapp.com"
+//#define kServerPort 80
+#define kServer @"bbunge2.stanford.edu"
+#define kServerPort 1337
 
 #define kConceptReceivedFromServerNotification @"ConceptReceivedFromServer"
+#define kQuestionReceivedFromServerNotification @"QuestionReceivedFromServer"
 #define kServerDisconnected @"ServerDisconnected"
 #define kServerConnected @"ServerConnected"
 #define kDataKey @"Data"

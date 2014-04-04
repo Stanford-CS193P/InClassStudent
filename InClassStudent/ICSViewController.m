@@ -10,6 +10,7 @@
 #import "ICSRemoteClient.h"
 #import "TaggedTimestampedDouble.h"
 #import "ICSUnderstandingIndicator.h"
+#import "ICSQuestionViewController.h"
 
 #define FONT_SIZE 20.0
 #define FONT_NAME @"AvenirNext-Medium"
@@ -28,6 +29,7 @@
 
 @property (nonatomic, strong) NSString *currentConceptName;
 @property (nonatomic, strong) NSString *currentConceptID;
+@property (nonatomic, strong) NSDictionary *questionData;
 
 @end
 
@@ -49,12 +51,15 @@
                                              selector:@selector(didReceiveData:)
                                                  name:kConceptReceivedFromServerNotification
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(didReceiveData:)
+                                                 name:kQuestionReceivedFromServerNotification
+                                               object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(serverDidDisconnect)
                                                  name:kServerDisconnected
                                                object:nil];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(serverDidConnect)
                                                  name:kServerConnected
@@ -113,6 +118,35 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             self.conceptLabel.text = conceptName;
         });
+    }
+    
+    if ([name isEqualToString:kQuestionReceivedFromServerNotification]) {
+        NSDictionary *data = [[notification userInfo] valueForKey:kDataKey];
+        self.questionData = data;
+        NSLog(@"questionData %@", data);
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self performSegueWithIdentifier:@"ToQuestion" sender:self];
+        });
+    }
+}
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+{
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+    if ([segue.identifier isEqualToString:@"ToQuestion"]) {
+        NSLog(@"segue.destinationViewController %@", [segue.destinationViewController class]);
+        
+        ICSQuestionViewController *questionVC = segue.destinationViewController;
+        questionVC.questionData = self.questionData;
+        self.questionData = nil;
+        
+        if (self.presentedViewController) {
+            [self dismissViewControllerAnimated:YES completion:^{
+                [self presentViewController:questionVC animated:YES completion:NULL];
+            }];
+        }
     }
 }
 

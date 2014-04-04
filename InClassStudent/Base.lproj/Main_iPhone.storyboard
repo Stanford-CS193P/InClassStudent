@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5053" systemVersion="12F45" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5053" systemVersion="13C64" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="vXZ-lx-hvc">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
-        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -18,11 +17,11 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="brG-ZN-i6Z" userLabel="ConceptRegion">
-                                <rect key="frame" x="0.0" y="281" width="320" height="227"/>
+                                <rect key="frame" x="0.0" y="96" width="320" height="472"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="67v-OT-1vb" userLabel="Indicator view" customClass="ICSUnderstandingIndicator">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="227"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="472"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <gestureRecognizers/>
                                         <connections>
@@ -40,8 +39,8 @@
                                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="I don't get it!" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QVv-zL-ES5">
-                                        <rect key="frame" x="0.0" y="167" width="320" height="60"/>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="I don't get it." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QVv-zL-ES5">
+                                        <rect key="frame" x="0.0" y="412" width="320" height="60"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="60" id="Mcp-Jm-RV6"/>
@@ -65,13 +64,12 @@
                                     <constraint firstItem="QVv-zL-ES5" firstAttribute="leading" secondItem="brG-ZN-i6Z" secondAttribute="leading" id="xC9-8T-SQ8"/>
                                 </constraints>
                             </view>
-                            <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="ConnectedIndicator" translatesAutoresizingMaskIntoConstraints="NO" id="uQn-b9-FJL">
-                                <rect key="frame" x="0.0" y="0.0" width="20" height="20"/>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="YWy-gO-v3E">
+                                <rect key="frame" x="20" y="8" width="280" height="80"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </imageView>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="8" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="YWy-gO-v3E">
-                                <rect key="frame" x="20" y="8" width="280" height="265"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="80" id="S49-ev-jF5"/>
+                                </constraints>
                                 <fontDescription key="fontDescription" name="AvenirNext-Bold" family="Avenir Next" pointSize="24"/>
                                 <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -81,13 +79,12 @@
                         <gestureRecognizers/>
                         <constraints>
                             <constraint firstItem="YWy-gO-v3E" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" constant="20" symbolic="YES" id="51g-xv-cUW"/>
-                            <constraint firstAttribute="height" secondItem="brG-ZN-i6Z" secondAttribute="height" multiplier="2.5" id="8Y8-Vr-BlE"/>
                             <constraint firstItem="brG-ZN-i6Z" firstAttribute="leading" secondItem="kh9-bI-dsS" secondAttribute="leading" id="DaE-90-ZJB"/>
                             <constraint firstAttribute="trailing" secondItem="YWy-gO-v3E" secondAttribute="trailing" constant="20" symbolic="YES" id="Hba-ly-wML"/>
                             <constraint firstAttribute="trailing" secondItem="brG-ZN-i6Z" secondAttribute="trailing" id="KBQ-vS-gZl"/>
                             <constraint firstItem="YWy-gO-v3E" firstAttribute="top" secondItem="QA7-sf-TbL" secondAttribute="bottom" constant="20" symbolic="YES" id="roW-jG-gYb"/>
                             <constraint firstItem="brG-ZN-i6Z" firstAttribute="top" secondItem="YWy-gO-v3E" secondAttribute="bottom" constant="8" symbolic="YES" id="tZF-Z1-nw7"/>
-                            <constraint firstAttribute="bottom" secondItem="brG-ZN-i6Z" secondAttribute="bottom" constant="60" id="xJf-lq-6wV"/>
+                            <constraint firstAttribute="bottom" secondItem="brG-ZN-i6Z" secondAttribute="bottom" id="xJf-lq-6wV"/>
                         </constraints>
                     </view>
                     <nil key="simulatedStatusBarMetrics"/>
@@ -97,8 +94,8 @@
                     <connections>
                         <outlet property="conceptLabel" destination="YWy-gO-v3E" id="6pf-GN-e50"/>
                         <outlet property="conceptRegion" destination="brG-ZN-i6Z" id="MoE-3u-3hG"/>
-                        <outlet property="connectedIndicator" destination="uQn-b9-FJL" id="fmv-oS-n6d"/>
                         <outlet property="understandingIndicator" destination="67v-OT-1vb" id="qcd-FS-wsn"/>
+                        <segue destination="hDV-2N-oNp" kind="modal" identifier="ToQuestion" id="Tzi-9Y-M0q"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -113,12 +110,58 @@
                     </connections>
                 </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="262" y="187"/>
+            <point key="canvasLocation" x="70" y="187"/>
+        </scene>
+        <!--Question View Controller-->
+        <scene sceneID="UHm-dJ-CKX">
+            <objects>
+                <viewController id="hDV-2N-oNp" customClass="ICSQuestionViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="aLN-4r-VSd"/>
+                        <viewControllerLayoutGuide type="bottom" id="NdO-Vd-XXp"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ASM-vt-oyK">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="8" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="hU9-qB-hvj">
+                                <rect key="frame" x="20" y="8" width="280" height="160"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="160" id="Wun-5e-cdB"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" name="AvenirNext-DemiBold" family="Avenir Next" pointSize="20"/>
+                                <color key="textColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="mPo-od-GTV" userLabel="ContentRegion">
+                                <rect key="frame" x="20" y="176" width="280" height="384"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="mPo-od-GTV" secondAttribute="trailing" constant="20" symbolic="YES" id="94i-YT-xtO"/>
+                            <constraint firstItem="mPo-od-GTV" firstAttribute="leading" secondItem="ASM-vt-oyK" secondAttribute="leading" constant="20" symbolic="YES" id="G4S-WR-5ms"/>
+                            <constraint firstItem="hU9-qB-hvj" firstAttribute="leading" secondItem="ASM-vt-oyK" secondAttribute="leading" constant="20" symbolic="YES" id="X8Q-Rk-4dg"/>
+                            <constraint firstItem="NdO-Vd-XXp" firstAttribute="top" secondItem="mPo-od-GTV" secondAttribute="bottom" constant="20" symbolic="YES" id="Yuk-Fp-7Kk"/>
+                            <constraint firstAttribute="trailing" secondItem="hU9-qB-hvj" secondAttribute="trailing" constant="20" symbolic="YES" id="aQo-TU-Dbp"/>
+                            <constraint firstItem="mPo-od-GTV" firstAttribute="top" secondItem="hU9-qB-hvj" secondAttribute="bottom" constant="8" symbolic="YES" id="bHl-HD-X4F"/>
+                            <constraint firstItem="mPo-od-GTV" firstAttribute="top" secondItem="hU9-qB-hvj" secondAttribute="bottom" constant="8" symbolic="YES" id="cT0-ot-Z7x"/>
+                            <constraint firstItem="hU9-qB-hvj" firstAttribute="top" secondItem="aLN-4r-VSd" secondAttribute="bottom" constant="20" symbolic="YES" id="ueE-2L-Ud2"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="contentRegion" destination="mPo-od-GTV" id="MjZ-wg-dck"/>
+                        <outlet property="questionTextLabel" destination="hU9-qB-hvj" id="xpa-yq-L6o"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="Hw8-Us-hmj" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="704" y="187"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="ConnectedIndicator" width="128" height="128"/>
-    </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
