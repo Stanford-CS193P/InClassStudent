@@ -96,6 +96,7 @@
                         <outlet property="conceptRegion" destination="brG-ZN-i6Z" id="MoE-3u-3hG"/>
                         <outlet property="understandingIndicator" destination="67v-OT-1vb" id="qcd-FS-wsn"/>
                         <segue destination="hDV-2N-oNp" kind="modal" identifier="ToQuestion" id="Tzi-9Y-M0q"/>
+                        <segue destination="CKM-mr-xat" kind="modal" identifier="ToAuthWebView" id="e04-Wo-nF4"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="x5A-6p-PRh" sceneMemberID="firstResponder"/>
@@ -111,6 +112,35 @@
                 </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="70" y="187"/>
+        </scene>
+        <!--Auth View Controller-->
+        <scene sceneID="dYe-cV-BVI">
+            <objects>
+                <viewController id="CKM-mr-xat" customClass="ICSAuthViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="9c0-Je-oZN"/>
+                        <viewControllerLayoutGuide type="bottom" id="Qo2-6r-4pi"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ahX-4x-MP3">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <webView contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="aKi-EK-hUg">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <dataDetectorType key="dataDetectorTypes"/>
+                            </webView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    </view>
+                    <connections>
+                        <outlet property="webView" destination="aKi-EK-hUg" id="0l3-uQ-I5t"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="B4Y-E2-AUY" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="704" y="-547"/>
         </scene>
         <!--Question View Controller-->
         <scene sceneID="UHm-dJ-CKX">

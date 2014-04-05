@@ -11,6 +11,7 @@
 #import "TaggedTimestampedDouble.h"
 #import "ICSUnderstandingIndicator.h"
 #import "ICSQuestionViewController.h"
+#import "ICSAuthViewController.h"
 
 #define FONT_SIZE 20.0
 #define FONT_NAME @"AvenirNext-Medium"
@@ -30,6 +31,8 @@
 @property (nonatomic, strong) NSString *currentConceptName;
 @property (nonatomic, strong) NSString *currentConceptID;
 @property (nonatomic, strong) NSDictionary *questionData;
+
+@property (nonatomic, strong) NSString *identifierForVendor;
 
 @end
 
@@ -63,6 +66,10 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(serverDidConnect)
                                                  name:kServerConnected
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleAuthRequired:)
+                                                 name:kAuthRequiredNotification
                                                object:nil];
 }
 
@@ -124,30 +131,47 @@
         NSDictionary *data = [[notification userInfo] valueForKey:kDataKey];
         self.questionData = data;
         NSLog(@"questionData %@", data);
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self performSegueWithIdentifier:@"ToQuestion" sender:self];
-        });
+        // TODO: queue up questions that come in that are not segued to
+        if ([self shouldPerformSegueWithIdentifier:@"ToQuestion" sender:self]) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self performSegueWithIdentifier:@"ToQuestion" sender:self];
+            });
+        }
     }
 }
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
 {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+    NSLog(@"segue.destinationViewController %@", [segue.destinationViewController class]);
+    
+    UIViewController *vc = nil;
+    
     if ([segue.identifier isEqualToString:@"ToQuestion"]) {
-        NSLog(@"segue.destinationViewController %@", [segue.destinationViewController class]);
-        
         ICSQuestionViewController *questionVC = segue.destinationViewController;
         questionVC.questionData = self.questionData;
         self.questionData = nil;
-        
-        if (self.presentedViewController) {
-            [self dismissViewControllerAnimated:YES completion:^{
-                [self presentViewController:questionVC animated:YES completion:NULL];
-            }];
-        }
+        vc = questionVC;
+    } else if ([segue.identifier isEqualToString:@"ToAuthWebView"]) {
+        ICSAuthViewController *authVC = segue.destinationViewController;
+        authVC.identifierForVendor = self.identifierForVendor;
+        self.identifierForVendor = nil;
+        vc = authVC;
     }
+    
+    if (self.presentedViewController) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self presentViewController:vc animated:YES completion:NULL];
+        }];
+    }
+}
+
+- (BOOL)shouldPerformSegueWithIdentifier:(NSString *)identifier sender:(id)sender
+{
+    if ([self.presentedViewController class] == [ICSAuthViewController class]) {
+        return NO;
+    }
+    return YES;
 }
 
 - (void)sendFeedback
@@ -162,6 +186,12 @@
         [ttd send];
     else
         [self.outgoingRatingsQueue addObject:ttd];
+}
+
+- (void)handleAuthRequired:(NSNotification *)notification
+{
+    self.identifierForVendor = [[notification userInfo] valueForKey:@"identifierForVendor"];
+    [self performSegueWithIdentifier:@"ToAuthWebView" sender:self];
 }
 
 @end

@@ -132,15 +132,19 @@
     }
 }
 
-// Used for debugging check mark.
 - (void)setServerIsConnected:(BOOL)serverIsConnected
 {
     _serverIsConnected = serverIsConnected;
     
     if (_serverIsConnected) {
+        // Used for debugging check mark.
         [[NSNotificationCenter defaultCenter] postNotificationName:kServerConnected
                                                             object:self
                                                           userInfo:nil];
+        
+        if (!self.userSUNetID) {
+            [self verifyAssociatedIdentifierForVendor];
+        }
     } else {
         [[NSNotificationCenter defaultCenter] postNotificationName:kServerDisconnected
                                                             object:self
@@ -160,6 +164,7 @@
     // Append bookkeeping fields
     NSMutableDictionary *dictMod = [[NSMutableDictionary alloc] initWithDictionary:dict];
     [dictMod setObject:[[[UIDevice currentDevice] identifierForVendor] UUIDString] forKey:@"identifierForVendor"];
+    [dictMod setObject:self.userSUNetID forKey:@"sunetid"];
     
     NSLog(@"INFO: sendDict %@", dictMod);
     NSString *url = self.eventToURLMap[event];
@@ -193,10 +198,6 @@
     if (self.serverIsConnected) return;
     NSLog(@"attempting to connect");
     
-    NSArray *oldCookies = [[ NSHTTPCookieStorage sharedHTTPCookieStorage ]
-                           cookiesForURL:self.serverURL];
-    NSLog(@"oldCookies %@", oldCookies);
-    
     self.socketIO = [[SocketIO alloc] initWithDelegate:self];
     // The password field is used (as a first pass!) to prevent random people
     // (but of course anyone can see this on github) from connecting to the server.
@@ -210,6 +211,26 @@
 {
     self.shouldReconnect = NO;
     [self.socketIO disconnect];
+}
+
+- (void)verifyAssociatedIdentifierForVendor
+{
+    NSString *identifier = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    NSLog(@"identifier %@", identifier);
+    [self.socketIO get:@"/InClassStudentUser/isAssociated"
+              withData:@{ @"identifierForVendor": identifier }
+              callback:^(id response) {
+                  NSLog(@"InClassStudentUser/isAssociated response: %@", [response objectForKey:@"isAssociated"]);
+                  if (![[response objectForKey:@"isAssociated"] boolValue]) {
+                      dispatch_async(dispatch_get_main_queue(), ^{
+                          [[NSNotificationCenter defaultCenter] postNotificationName:kAuthRequiredNotification
+                                                                              object:self
+                                                                            userInfo:@{@"identifierForVendor": identifier}];
+                      });
+                  } else {
+                      self.userSUNetID = [[response objectForKey:@"user"] objectForKey:@"sunetid"];
+                  }
+              }];
 }
 
 @end
