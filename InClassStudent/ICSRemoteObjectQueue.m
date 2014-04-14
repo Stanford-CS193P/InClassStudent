@@ -63,4 +63,6 @@
 
 - (void)serverDidDisconnect { }
 
+// TODO: handle socket sendEvent on error
+
 @end

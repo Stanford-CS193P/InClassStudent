@@ -9,6 +9,7 @@
 #import "ICSQuestionViewController.h"
 #import "ICSRemoteClient.h"
 #import "ICSQuestionResponse.h"
+#import "ICSRemoteObjectQueue.h"
 
 #define kQuestionTypeMultipleChoice @"MULTIPLE_CHOICE"
 #define kQuestionTypeFreeResponse @"FREE_RESPONSE"
@@ -299,7 +300,7 @@
 - (void)sendQuestionResponse:(NSString *)response
 {
     self.questionResponse.response = response;
-    [self.questionResponse send];
+    [[ICSRemoteObjectQueue sharedQueue] addOutgoingRemoteObject:self.questionResponse];
     [self dismissViewControllerAnimated:YES completion:NULL];
 }
 
