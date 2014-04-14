@@ -12,6 +12,7 @@
 #import "ICSUnderstandingIndicator.h"
 #import "ICSQuestionViewController.h"
 #import "ICSAuthViewController.h"
+#import "ICSRemoteObjectQueue.h"
 
 #define FONT_SIZE 20.0
 #define FONT_NAME @"AvenirNext-Medium"
@@ -26,8 +27,6 @@
 
 @property (nonatomic, strong) IBOutlet ICSUnderstandingIndicator *understandingIndicator;
 
-@property (nonatomic, strong) NSMutableArray *outgoingRatingsQueue; //of TaggedTimestampDouble
-
 @property (nonatomic, strong) NSString *currentConceptName;
 @property (nonatomic, strong) NSString *currentConceptID;
 @property (nonatomic, strong) NSDictionary *questionData;
@@ -38,14 +37,6 @@
 
 @implementation ICSViewController
 
-- (NSMutableArray *)outgoingRatingsQueue
-{
-    if (!_outgoingRatingsQueue) {
-        _outgoingRatingsQueue = [[NSMutableArray alloc] init];
-    }
-    return _outgoingRatingsQueue;
-}
-
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -54,19 +45,12 @@
                                              selector:@selector(didReceiveData:)
                                                  name:kConceptReceivedFromServerNotification
                                                object:nil];
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(didReceiveData:)
                                                  name:kQuestionReceivedFromServerNotification
                                                object:nil];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(serverDidDisconnect)
-                                                 name:kServerDisconnected
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(serverDidConnect)
-                                                 name:kServerConnected
-                                               object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleAuthRequired:)
                                                  name:kAuthRequiredNotification
@@ -91,23 +75,6 @@
 }
 
 #pragma mark - Server notifications
-
-- (void)serverDidDisconnect
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.connectedIndicator.hidden = YES;
-    });
-}
-
-- (void)serverDidConnect
-{
-    dispatch_async(dispatch_get_main_queue(), ^{
-        self.connectedIndicator.hidden = NO;
-    });
-    
-    [self.outgoingRatingsQueue makeObjectsPerformSelector:@selector(send)];
-    [self.outgoingRatingsQueue removeAllObjects];
-}
 
 - (void)didReceiveData:(NSNotification *)notification
 {
@@ -182,10 +149,7 @@
     TaggedTimestampedDouble *ttd = [[TaggedTimestampedDouble alloc] initWithDouble:self.understandingIndicator.touchFraction
                                                                             andTag:self.currentConceptName
                                                                              andID:self.currentConceptID];
-    if ([[ICSRemoteClient sharedManager] serverIsConnected])
-        [ttd send];
-    else
-        [self.outgoingRatingsQueue addObject:ttd];
+    [[ICSRemoteObjectQueue sharedQueue] addOutgoingRemoteObject:ttd];
 }
 
 - (void)handleAuthRequired:(NSNotification *)notification

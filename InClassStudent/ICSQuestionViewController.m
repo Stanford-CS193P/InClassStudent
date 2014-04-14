@@ -8,6 +8,7 @@
 
 #import "ICSQuestionViewController.h"
 #import "ICSRemoteClient.h"
+#import "ICSQuestionResponse.h"
 
 #define kQuestionTypeMultipleChoice @"MULTIPLE_CHOICE"
 #define kQuestionTypeFreeResponse @"FREE_RESPONSE"
@@ -18,10 +19,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *questionTextLabel;
 @property (weak, nonatomic) IBOutlet UIView *contentRegion;
 
-@property (strong, nonatomic) NSString *questionID;
-@property (strong, nonatomic) NSString *questionText;
-@property (strong, nonatomic) NSString *questionType;
-@property (strong, nonatomic) NSArray *questionChoices;
+@property (strong, nonatomic) ICSQuestionResponse *questionResponse;
 
 @end
 
@@ -41,17 +39,21 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-    self.questionID = [self.questionData objectForKey:@"id"];
-    self.questionText = [self.questionData objectForKey:@"text"];
-    self.questionType = [self.questionData objectForKey:@"type"];
+    NSString *questionID = [self.questionData objectForKey:@"id"];
+    NSString *questionText = [self.questionData objectForKey:@"text"];
+    NSString *questionType = [self.questionData objectForKey:@"type"];
+    NSArray *questionChoices = [self.questionData objectForKey:@"choices"];
     
-    self.questionTextLabel.text = self.questionText;
+    self.questionResponse = [[ICSQuestionResponse alloc] initWithQuestionID:questionID
+                                                                    andText:questionText];
+
+    self.questionTextLabel.text = questionText;
     
-    if ([self.questionType isEqualToString:kQuestionTypeMultipleChoice]) {
-        [self setUpMulipleChoiceQuestion:[self.questionData objectForKey:@"choices"]];
-    } else if ([self.questionType isEqualToString:kQuestionTypeTrueFalse]) {
+    if ([questionType isEqualToString:kQuestionTypeMultipleChoice]) {
+        [self setUpMulipleChoiceQuestion:questionChoices];
+    } else if ([questionType isEqualToString:kQuestionTypeTrueFalse]) {
         [self setUpTrueFalseQuestion];
-    } else if ([self.questionType isEqualToString:kQuestionTypeFreeResponse]) {
+    } else if ([questionType isEqualToString:kQuestionTypeFreeResponse]) {
         [self setUpFreeResponseQuestion];
     }
 }
@@ -296,12 +298,8 @@
 
 - (void)sendQuestionResponse:(NSString *)response
 {
-    [[ICSRemoteClient sharedManager] sendEvent:@"CreateQuestionResponse"
-                                      withData:@{ @"questionID": self.questionID,
-                                                  @"questionText": self.questionText,
-                                                  @"response": response }
-                                   andCallback:NULL];
-    
+    self.questionResponse.response = response;
+    [self.questionResponse send];
     [self dismissViewControllerAnimated:YES completion:NULL];
 }
 

@@ -41,6 +41,8 @@
 		9F89865818E0B6870050BDF5 /* SRWebSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F89864E18E0B6870050BDF5 /* SRWebSocket.m */; settings = {COMPILER_FLAGS = "-w"; }; };
 		9F99673818EF767E00B496AE /* ICSAuthViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F99673718EF767E00B496AE /* ICSAuthViewController.m */; };
 		9F9E4D9C18E103F400768F94 /* ICSUnderstandingIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9F9E4D9B18E103F400768F94 /* ICSUnderstandingIndicator.m */; };
+		9FF49AE418F3B60D007A331D /* ICSQuestionResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FF49AE318F3B60D007A331D /* ICSQuestionResponse.m */; };
+		9FF49AE718F3C422007A331D /* ICSRemoteObjectQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 9FF49AE618F3C422007A331D /* ICSRemoteObjectQueue.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -112,6 +114,11 @@
 		9F99673718EF767E00B496AE /* ICSAuthViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICSAuthViewController.m; sourceTree = "<group>"; };
 		9F9E4D9A18E103F400768F94 /* ICSUnderstandingIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICSUnderstandingIndicator.h; sourceTree = "<group>"; };
 		9F9E4D9B18E103F400768F94 /* ICSUnderstandingIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICSUnderstandingIndicator.m; sourceTree = "<group>"; };
+		9FF49AE118F3B511007A331D /* ICSRemoteObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ICSRemoteObject.h; sourceTree = "<group>"; };
+		9FF49AE218F3B60D007A331D /* ICSQuestionResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICSQuestionResponse.h; sourceTree = "<group>"; };
+		9FF49AE318F3B60D007A331D /* ICSQuestionResponse.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICSQuestionResponse.m; sourceTree = "<group>"; };
+		9FF49AE518F3C422007A331D /* ICSRemoteObjectQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ICSRemoteObjectQueue.h; sourceTree = "<group>"; };
+		9FF49AE618F3C422007A331D /* ICSRemoteObjectQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ICSRemoteObjectQueue.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -144,12 +151,17 @@
 		5CBFA02018E14B3900538766 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				9FF49AE118F3B511007A331D /* ICSRemoteObject.h */,
+				9FF49AE218F3B60D007A331D /* ICSQuestionResponse.h */,
+				9FF49AE318F3B60D007A331D /* ICSQuestionResponse.m */,
 				5CBFA02318E14EE800538766 /* TaggedTimestampedDouble.h */,
 				5CBFA02418E14EE800538766 /* TaggedTimestampedDouble.m */,
 				5CBFA02518E14EE800538766 /* TimestampedDouble.h */,
 				5CBFA02618E14EE800538766 /* TimestampedDouble.m */,
 				9F6A725F18C594D200DF00FE /* ICSRemoteClient.h */,
 				9F6A726018C594D200DF00FE /* ICSRemoteClient.m */,
+				9FF49AE518F3C422007A331D /* ICSRemoteObjectQueue.h */,
+				9FF49AE618F3C422007A331D /* ICSRemoteObjectQueue.m */,
 			);
 			name = Model;
 			sourceTree = "<group>";
@@ -422,6 +434,7 @@
 				9F89865018E0B6870050BDF5 /* SocketIO+SailsIO.m in Sources */,
 				9F9E4D9C18E103F400768F94 /* ICSUnderstandingIndicator.m in Sources */,
 				9F89865718E0B6870050BDF5 /* NSData+SRB64Additions.m in Sources */,
+				9FF49AE718F3C422007A331D /* ICSRemoteObjectQueue.m in Sources */,
 				9F89865418E0B6870050BDF5 /* SocketIOTransportWebsocket.m in Sources */,
 				9F99673818EF767E00B496AE /* ICSAuthViewController.m in Sources */,
 				9F289FCD18EA881E007D1D06 /* ICSQuestionViewController.m in Sources */,
@@ -429,6 +442,7 @@
 				9F89865618E0B6870050BDF5 /* base64.c in Sources */,
 				9F89865818E0B6870050BDF5 /* SRWebSocket.m in Sources */,
 				9F4A224C18BF00FE00EA90A8 /* main.m in Sources */,
+				9FF49AE418F3B60D007A331D /* ICSQuestionResponse.m in Sources */,
 				9F89865218E0B6870050BDF5 /* SocketIOJSONSerialization.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

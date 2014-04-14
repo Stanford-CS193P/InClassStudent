@@ -7,13 +7,13 @@
 //
 
 #import "TimestampedDouble.h"
+#import "ICSRemoteObject.h"
 
-@interface TaggedTimestampedDouble : TimestampedDouble
+@interface TaggedTimestampedDouble : TimestampedDouble <ICSRemoteObject>
 
 - (instancetype)initWithDouble:(double)value
                         andTag:(NSString *)tag
                          andID:(NSString *)identifier;
-- (void)send;
 
 @property (strong, nonatomic, readonly) NSString *tag;
 @property (strong, nonatomic, readonly) NSString *identifier;
