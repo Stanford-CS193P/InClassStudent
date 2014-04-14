@@ -62,9 +62,15 @@
         _eventToURLMap = @{
                            @"CreateRating": @"/InClassStudentResponse/create",
                            @"CreateQuestionResponse": @"/InClassQuestionResponse/create"
-                           };
+                          };
     }
     return _eventToURLMap;
+}
+
+// TODO: comment this code out when we want to use sunetids
+- (NSString *)userSUNetID
+{
+    return @"ANONYMOUS";
 }
 
 #pragma mark - NSURLConnectionDelegate methods
@@ -216,7 +222,6 @@
 - (void)verifyAssociatedIdentifierForVendor
 {
     NSString *identifier = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    NSLog(@"identifier %@", identifier);
     [self.socketIO get:@"/InClassStudentUser/isAssociated"
               withData:@{ @"identifierForVendor": identifier }
               callback:^(id response) {
