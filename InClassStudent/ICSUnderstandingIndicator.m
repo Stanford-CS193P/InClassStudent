@@ -33,6 +33,12 @@
     [self setNeedsDisplay];
 }
 
+- (void)setIsVisible:(BOOL)isVisible
+{
+    _isVisible = isVisible;
+    [self setNeedsDisplay];
+}
+
 - (void)viewHasSuperView
 {
     [self.superview sendSubviewToBack:self];
@@ -40,14 +46,17 @@
 
 - (void)drawRect:(CGRect)rect
 {
+    if (!self.isVisible) {
+        [[UIColor blackColor] setFill];
+        UIRectFill(self.bounds);
+        return;
+    }
+    
     [self setClipsToBounds:YES];
 
     CGFloat colors [] = {
-        134/255.0, 191/255.0, 60/255.0, 1.0,
-//        176/255.0, 191/255.0, 62/255.0, 1.0,
-//        238/255.0, 174/255.0, 59/255.0, 1.0,
-//        238/255.0, 121/255.0, 44/255.0, 1.0,
-        190/255.0,   0/255.0, 20/255.0, 1.0
+        124/255.0, 181/255.0, 50/255.0, 1.0,
+        180/255.0,   0/255.0, 10/255.0, 1.0
     };
     
     CGColorSpaceRef baseSpace = CGColorSpaceCreateDeviceRGB();
@@ -86,7 +95,6 @@
         UIRectFill(CGRectMake(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, height1));
         UIRectFill(CGRectMake(self.bounds.origin.x, y2, self.bounds.size.width, height2));
     }
-    
 }
 
 @end

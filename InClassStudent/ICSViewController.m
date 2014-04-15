@@ -61,17 +61,32 @@
 
 - (IBAction)understandingIndicatorTap:(UITapGestureRecognizer *)sender
 {
+    self.understandingIndicator.isVisible = YES;
     self.understandingIndicator.touchLocation = [sender locationInView:self.understandingIndicator];
+    [self hideUnderstandingIndicator];
     [self sendFeedback];
 }
 
 - (IBAction)understandingIndicatorPan:(UIPanGestureRecognizer *)sender
 {
+    self.understandingIndicator.isVisible = YES;
     self.understandingIndicator.touchLocation = [sender locationInView:self.understandingIndicator];
     
     if (sender.state == UIGestureRecognizerStateEnded) {
+        [self hideUnderstandingIndicator];
         [self sendFeedback];
     }
+}
+
+- (void)hideUnderstandingIndicator
+{
+    [UIView animateWithDuration:0.25
+                     animations:^{
+                         self.understandingIndicator.alpha = 0.0;
+                     } completion:^(BOOL finished) {
+                         self.understandingIndicator.isVisible = NO;
+                         self.understandingIndicator.alpha = 1.0;
+                     }];
 }
 
 #pragma mark - Server notifications

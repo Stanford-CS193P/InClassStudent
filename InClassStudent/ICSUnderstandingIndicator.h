@@ -12,6 +12,7 @@
 
 @property (nonatomic) CGPoint touchLocation;
 @property (nonatomic) CGFloat touchFraction;
+@property (nonatomic) BOOL isVisible;
 
 - (void)viewHasSuperView;
 
