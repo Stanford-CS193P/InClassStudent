@@ -73,6 +73,10 @@
         [button setTitle:choice forState:UIControlStateNormal];
         [self setUpButtonTapHandler:button];
         
+        button.titleLabel.textAlignment = NSTextAlignmentCenter;
+        button.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+        button.titleLabel.font = [UIFont fontWithName:@"AvenirNext-DemiBold" size:13];
+
         [self.contentRegion addSubview:button];
         
         [button setTranslatesAutoresizingMaskIntoConstraints:NO];
@@ -231,7 +235,7 @@
     UITextView *textView = [[UITextView alloc] init];
     
     textView.backgroundColor = [[UIColor alloc] initWithRed:0.9 green:0.9 blue:0.9 alpha:1.0];
-    [textView setFont:[UIFont fontWithName:@"Avenir Next" size:16]];
+    textView.font = [UIFont fontWithName:@"Avenir Next" size:12];
     textView.returnKeyType = UIReturnKeyDone;
     
     textView.delegate = self;
