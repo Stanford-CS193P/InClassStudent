@@ -371,6 +371,11 @@
 				TargetAttributes = {
 					9F4A223B18BF00FE00EA90A8 = {
 						DevelopmentTeam = FUTU96J3U9;
+						SystemCapabilities = {
+							com.apple.InterAppAudio = {
+								enabled = 0;
+							};
+						};
 					};
 					9F4A225F18BF00FE00EA90A8 = {
 						TestTargetID = 9F4A223B18BF00FE00EA90A8;

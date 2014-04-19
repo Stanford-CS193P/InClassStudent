@@ -15,6 +15,7 @@
 {
     // Override point for customization after application launch.
     [ICSRemoteClient sharedManager];
+    [UIApplication sharedApplication].idleTimerDisabled = YES;
     return YES;
 }
 
