@@ -15,6 +15,7 @@
 
 #define kConceptReceivedFromServerNotification @"ConceptReceivedFromServer"
 #define kQuestionReceivedFromServerNotification @"QuestionReceivedFromServer"
+#define kQuestionUpdatedNotification @"QuestionUpdated"
 #define kAuthRequiredNotification @"AuthRequired"
 #define kServerDisconnected @"ServerDisconnected"
 #define kServerConnected @"ServerConnected"

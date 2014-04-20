@@ -136,6 +136,12 @@
                                                             object:self
                                                           userInfo:@{kDataKey: data}];
     }
+    
+    if ([model isEqualToString:@"inclassquestion"] && [verb isEqualToString:@"update"]) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kQuestionUpdatedNotification
+                                                            object:self
+                                                          userInfo:@{kDataKey: data}];
+    }
 }
 
 - (void)setServerIsConnected:(BOOL)serverIsConnected
@@ -210,7 +216,9 @@
     // The server checks this password before creating the socket.
     // TODO(brie): better way to ensure valid user than plain text password
     [self.socketIO connectToHost:kServer onPort:kServerPort
-                      withParams:@{@"user_type": @"student", @"password": @"cs193pisawesome"}];
+                      withParams:@{@"user_type": @"student",
+                                   @"password": @"cs193pisawesome",
+                                   @"identifier_for_vendor": [[[UIDevice currentDevice] identifierForVendor] UUIDString] }];
 }
 
 - (void)disconnect

@@ -38,7 +38,6 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
     
     NSString *questionID = [self.questionData objectForKey:@"id"];
     NSString *questionText = [self.questionData objectForKey:@"text"];
@@ -56,6 +55,20 @@
         [self setUpTrueFalseQuestion];
     } else if ([questionType isEqualToString:kQuestionTypeFreeResponse]) {
         [self setUpFreeResponseQuestion];
+    }
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(questionDidUpdate:)
+                                                 name:kQuestionUpdatedNotification
+                                               object:nil];
+}
+
+- (void)questionDidUpdate:(NSNotification *)notification
+{
+    NSDictionary *data = [[notification userInfo] valueForKey:kDataKey];
+    BOOL isOpen = [[data objectForKey:@"isOpen"] boolValue];
+    if (!isOpen) {
+        [self dismissViewControllerAnimated:YES completion:NULL];
     }
 }
 
